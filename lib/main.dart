@@ -1,5 +1,5 @@
 import 'package:expense_tracker/screen/SplashScreen.dart';
-import 'package:expense_tracker/screen/home.dart';
+import 'package:expense_tracker/screen/homePage.dart';
 import 'package:flutter/material.dart';
 
 void main() {
