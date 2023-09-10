@@ -10,7 +10,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: SplashScreen(), // Set your splash screen as the initial route
+      home: const SplashScreen(), // Set your splash screen as the initial route
       debugShowCheckedModeBanner: false,
       routes: {
         '/home': (context) => HomePage(), // Define your homepage route

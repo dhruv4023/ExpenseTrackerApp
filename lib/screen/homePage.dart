@@ -1,3 +1,4 @@
+import 'package:expense_tracker/widgets/SearchOnAppBar.dart';
 import 'package:flutter/material.dart';
 
 class HomePage extends StatefulWidget {
@@ -8,18 +9,14 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  bool _isSearching = false;
+  bool _isSearching = true;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.grey,
-        automaticallyImplyLeading: false,
-        title: _isSearching
-            ? buildSearchField()
-            : const Text('Expense Tracker App'),
-        actions: buildAppBarActions(),
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(kToolbarHeight),
+        child: _AppBar(),
       ),
       body: const Center(
         child: Text('Welcome to the Home Page!'),
@@ -27,43 +24,29 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget buildSearchField() {
-    return TextField(
-      onChanged: (value) {
-        // Handle search input here
-      },
-      decoration: const InputDecoration(
-        hintText: 'Search...',
-        border: InputBorder.none,
-      ),
+  Widget _AppBar() {
+    return AppBar(
+      backgroundColor: Colors.grey,
+      automaticallyImplyLeading: false,
+      title:
+          _isSearching ? buildSearchField() : const Text('Expense Tracker App'),
+      actions: buildAppBarActions(_isSearching, toggleSearch),
     );
   }
 
-  List<Widget> buildAppBarActions() {
-    if (_isSearching) {
-      return [
-        IconButton(
-          icon: const Icon(Icons.clear),
-          onPressed: () {
-            // Clear the search and return to the normal AppBar
-            setState(() {
-              _isSearching = false;
-            });
-          },
-        ),
-      ];
-    } else {
-      return [
-        IconButton(
-          icon: const Icon(Icons.search),
-          onPressed: () {
-            // Activate the search mode
-            setState(() {
-              _isSearching = true;
-            });
-          },
-        ),
-      ];
-    }
+  Widget buildNormalAppBar() {
+    return AppBar(
+      backgroundColor: Colors.grey,
+      automaticallyImplyLeading: false,
+      title:
+          _isSearching ? buildSearchField() : const Text('Expense Tracker App'),
+      actions: buildAppBarActions(_isSearching, toggleSearch),
+    );
+  }
+
+  void toggleSearch(bool isSearching) {
+    setState(() {
+      _isSearching = isSearching;
+    });
   }
 }
