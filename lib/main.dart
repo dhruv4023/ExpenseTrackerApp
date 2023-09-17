@@ -1,3 +1,4 @@
+import 'package:expense_tracker/screen/Login/loginPage.dart';
 import 'package:expense_tracker/screen/SplashScreen.dart';
 import 'package:expense_tracker/screen/homePage.dart';
 import 'package:flutter/material.dart';
@@ -13,7 +14,8 @@ class MyApp extends StatelessWidget {
       home: const SplashScreen(), // Set your splash screen as the initial route
       debugShowCheckedModeBanner: false,
       routes: {
-        '/home': (context) => HomePage(), // Define your homepage route
+        '/login': (context) => const LoginPage(), 
+        '/home': (context) => const HomePage(), // Define your homepage route
       },
     );
   }
