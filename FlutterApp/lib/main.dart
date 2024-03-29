@@ -8,13 +8,15 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       home: const SplashScreen(), // Set your splash screen as the initial route
       debugShowCheckedModeBanner: false,
       routes: {
-        '/login': (context) => const LoginPage(), 
+        '/login': (context) => LoginPage(), 
         '/home': (context) => const HomePage(), // Define your homepage route
       },
     );
