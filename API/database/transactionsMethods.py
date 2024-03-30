@@ -1,7 +1,7 @@
-from MainServer.database.uniqueId import *
-from MainServer.database.mongodb import *
-from MainServer.database.totalAndLabel import addNewTotalLabelDoc, incrementInTotalCollection, decrementInTotalCollection, decreamentAndIncrement
-from MainServer.database.archived import archiveTransactions
+from  database.uniqueId import *
+from   database.main import *
+from  database.totalAndLabel import addNewTotalLabelDoc, incrementInTotalCollection, decrementInTotalCollection, decreamentAndIncrement
+from  database.archived import archiveTransactions
 
 
 # to add new document

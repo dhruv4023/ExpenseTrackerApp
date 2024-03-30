@@ -1,5 +1,5 @@
-from MainServer.database.mongodb import *
-from MainServer.database.totalAndLabel import addLabel
+from   database.main import *
+from  database.totalAndLabel import addLabel
 
 
 # to archive previous year transactions

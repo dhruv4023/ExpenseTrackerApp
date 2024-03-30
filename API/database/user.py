@@ -1,5 +1,5 @@
-from MainServer.database.mongodb import *
-from MainServer.database.transactionsMethods import addTransMethod
+from   database.main import *
+from  database.transactionsMethods import addTransMethod
 
 # signup
 def addNewuser(_id: str, name: str, email: str, password: str):
@@ -9,7 +9,7 @@ def addNewuser(_id: str, name: str, email: str, password: str):
         "email": email,
         "password": password,
     }
-    validate_document(document=doc, schema=usersSchema)
+    validate_document(document=doc, schema=users_schema)
     users.insert_one(doc)
     res = addTransMethod(_id, name+"'s Transactions")
     return True and res

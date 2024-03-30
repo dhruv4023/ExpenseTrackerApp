@@ -1,5 +1,5 @@
-from MainServer.database.mongodb import *
-from MainServer.database.uniqueId import getUniqueId
+from   database.main import *
+from  database.uniqueId import getUniqueId
 
 
 months = ["jan", "feb", "mar", "apr", "may", "jun",

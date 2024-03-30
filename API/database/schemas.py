@@ -1,53 +1,55 @@
-# schema for user collection
-usersSchema = {
+# Schema for user collection
+users_schema = {
     "_id": str,
     "name": str,
     "email": str,
     "password": str,
 }
 
-# schema for transactionsMethods and archived collection
-transactionsMethodsSchema = {
+# Schema for transactionsMethods and archived collection
+transactions_methods_schema = {
     "_id": str,
     "title": str,
     "year": str,
     "transactions": list,
-    "startedOn": str
+    "started_on": str
 }
 
-transactionSchema = {
+transaction_schema = {
     "_id": str,
     "dateTime": str,
     "comment": str,
-    "labelId": str,
+    "label_id": str,
     "amt": int,
 }
 
-# schema for transactionsMethods collection
-totalLabelSchema = {
+# Schema for transactionsMethods collection
+total_label_schema = {
     "_id": str,
     "labels": list,
 }
 
-labelSchema = {
+label_schema = {
     "_id": str,
-    "labelName": str,
+    "label_name": str,
     "default": bool,
-    "jan": dict,
-    "feb": dict,
-    "mar": dict,
-    "apr": dict,
-    "may": dict,
-    "jun": dict,
-    "jul": dict,
-    "aug": dict,
-    "sep": dict,
-    "oct": dict,
-    "nov": dict,
-    "dec": dict
+    "months": {
+        "jan": dict,
+        "feb": dict,
+        "mar": dict,
+        "apr": dict,
+        "may": dict,
+        "jun": dict,
+        "jul": dict,
+        "aug": dict,
+        "sep": dict,
+        "oct": dict,
+        "nov": dict,
+        "dec": dict
+    }
 }
 
-totalSchema = {
+total_schema = {
     "dr": int,
     "cr": int,
 }
