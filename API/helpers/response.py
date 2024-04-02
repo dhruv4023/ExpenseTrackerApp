@@ -1,35 +1,27 @@
 from fastapi import Response
 from langs.en.messages import get_message
+from helpers.json_convertor import convert_to_json
 
 class ResponseHandler:
     @staticmethod
     def success(message_code=None, data=None, status_code=200):
         response = {
             "success": True,
-            "message": get_message(message_code)
+            "message": get_message(message_code),
+            "data": data
         }
-        if data is not None:
-            response["data"] = data
-        return response, status_code
+        return Response(content=convert_to_json(response), status_code=status_code, media_type="application/json")
 
     @staticmethod
-    def error(message_code, s_code=422, error=None, data=None):
+    def error(message_code=9999, error=None, status_code=422, data=None):
         response = {
             "success": False,
-            "message": get_message(message_code)
+            "message": get_message(message_code),
+            "error": str(error) if error else None,
+            "data": data
         }
-        if data is not None:
-            response["data"] = data
-        if error is not None:
-            response["Error Message"] = str(error)
-        return response, (500 if message_code == 9999 else s_code)
+        return Response(content=convert_to_json(response), status_code=(500 if message_code == 9999 else status_code), media_type="application/json")
 
     @staticmethod
     def success_mediator(response):
-        print(response)
-        return response
-
-    @staticmethod
-    def error_mediator(error):
-        print(error)
-        return error
+        return Response(content=(response.content), status_code=response.status_code, media_type="application/json")

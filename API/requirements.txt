@@ -10,3 +10,6 @@ uvicorn[standard]==0.17.*
 python-multipart==0.0.9
 pydantic
 requests-toolbelt
+
+PyJWT==2.8.0
+pytest

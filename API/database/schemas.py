@@ -1,18 +1,10 @@
-# Schema for user collection
-users_schema = {
-    "_id": str,
-    "name": str,
-    "email": str,
-    "password": str,
-}
-
-# Schema for transactionsMethods and archived collection
-transactions_methods_schema = {
+# Schema for wallets and archived collection
+wallet_schema = {
     "_id": str,
     "title": str,
     "year": str,
     "transactions": list,
-    "started_on": str
+    "started_on": str,
 }
 
 transaction_schema = {
@@ -23,7 +15,7 @@ transaction_schema = {
     "amt": int,
 }
 
-# Schema for transactionsMethods collection
+# Schema for wallets collection
 total_label_schema = {
     "_id": str,
     "labels": list,
@@ -33,20 +25,18 @@ label_schema = {
     "_id": str,
     "label_name": str,
     "default": bool,
-    "months": {
-        "jan": dict,
-        "feb": dict,
-        "mar": dict,
-        "apr": dict,
-        "may": dict,
-        "jun": dict,
-        "jul": dict,
-        "aug": dict,
-        "sep": dict,
-        "oct": dict,
-        "nov": dict,
-        "dec": dict
-    }
+    "jan": dict,
+    "feb": dict,
+    "mar": dict,
+    "apr": dict,
+    "may": dict,
+    "jun": dict,
+    "jul": dict,
+    "aug": dict,
+    "sep": dict,
+    "oct": dict,
+    "nov": dict,
+    "dec": dict,
 }
 
 total_schema = {
@@ -55,10 +45,11 @@ total_schema = {
 }
 
 
-def validate_document(document, schema):
+def validate_document(document, schema: dict):
     for field, field_type in schema.items():
         if field not in document:
             raise ValueError(f"Missing field: {field}")
         if not isinstance(document[field], field_type):
             raise ValueError(
-                f"Invalid field type for {field}. Expected: {field_type.__name__}, Actual: {type(document[field]).__name__}")
+                f"Invalid field type for {field}. Expected: {field_type.__name__}, Actual: {type(document[field]).__name__}"
+            )

@@ -1,29 +1,31 @@
 MESSAGES = {
-    # Chat history messages
-    4000: "Chat history created successfully.",
-    4001: "Chat history retrieved successfully.",
-    4002: "Chat history not found.",
-    4003: "Chat history updated successfully.",
-    4004: "Chat history deleted successfully.",
-    4005: "Question deleted successfully.",
-    4006: "Question not found.",
-
-    3000: "Chat created successfully.",
-    3001: "Chats fetched successfully.",
-    3002: "Chat fetched successfully.",
-    3003: "Chat not found.",
-    3004: "Chat updated successfully.",
-    3005: "Chat deleted successfully.",
-    3006: "Chat with this collectionName already exist.",
-
+    # wallet
+    1001: "wallet added successfully",
+    # Transaction
+    2001: "Transaction added successfully",
+    2002: "Failed to add transaction",
+    2003: "Transaction deleted successfully",
+    2004: "Failed to delete transaction",
+    2005: "Transaction comment edited successfully",
+    2006: "Failed to edit transaction comment",
+    2007: "Transaction label changed successfully",
+    2008: "Failed to change transaction label",
+    2009: "Returns the list of transactions",
+    # Label
+    3001: "Label added successfully",
+    3002: "Default label updated successfully",
+    3003: "Label name updated successfully",
+    3004: "Labels retrieved successfully",
+    3005: "Label deleted successfully",
     # Authorization messages
-    5001: 'Unauthorized - Admin access required',
-    5002: 'Access denied - Unauthorized',
-    5003: 'Your session expired! Please log in again',
-
+    5001: "Unauthorized - Admin access required",
+    5002: "Access denied - Unauthorized",
+    5003: "Your session expired! Please log in again",
     # General messages
-    9999: 'Internal Server Error',
+    9000: "chatbot api server is running...",
+    9999: "Internal Server Error",
 }
+
 
 def get_message(message_code):
     if isinstance(message_code, int) and message_code in MESSAGES:

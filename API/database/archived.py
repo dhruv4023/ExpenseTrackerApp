@@ -1,5 +1,5 @@
 from   database.main import *
-from  database.totalAndLabel import addLabel
+from  database.total_and_label import addLabel
 
 
 # to archive previous year transactions
@@ -8,12 +8,12 @@ def archiveTransactions(doc_id: str):
     oldTransMethId = doc_id[:-2]+str(int(doc_id[-2:])-1)
     oldIdQuery = {"_id": oldTransMethId}
 
-    tranMethObj = transactionsMethods.find_one(oldIdQuery)
+    tranMethObj = wallets.find_one(oldIdQuery)
     totalAndLabelObj = totalAndLabel.find_one(oldIdQuery)
 
     # print(totalAndLabelObj)
     if archivedTransactions.insert_one(tranMethObj) and archivedTotalAndLabel.insert_one(totalAndLabelObj):
-        transactionsMethods.delete_one(oldIdQuery)
+        wallets.delete_one(oldIdQuery)
         totalAndLabel.delete_one(oldIdQuery)
 
         try:

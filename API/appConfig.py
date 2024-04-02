@@ -5,23 +5,26 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
-class EnvVariables:
+class ENV_VAR:
     MONGO_DB_URL = os.environ.get("MONGO_DB_URL")
     JWT_SECRET = os.environ.get("JWT_SECRET")
     AUTH_API_END = os.environ.get("AUTH_API_END")
+    DEBUG = (
+        os.environ.get("DEBUG").lower() == "true" if os.environ.get("DEBUG") else False
+    )
 
 
-class ConstVariables:
+class CONST_VAR:
     COLLECTIONS = {
         "USERS": "users",
-        "TRANSACTION_METHODS": "transactionsMethods",
+        "WALLETS": "wallets",
         "TOTAL_AND_LABEL": "totalAndLabel",
         "ARCHIVED_TRANSACTIONS": "archivedTransactions",
-        "ARCHIVED_TOTAL_AND_LABEL": "archivedTotalAndLabel"
+        "ARCHIVED_TOTAL_AND_LABEL": "archivedTotalAndLabel",
     }
 
 
-class Log:
+class LOG:
     def __init__(self) -> None:
         pass
 
@@ -50,4 +53,5 @@ class Log:
         logging.critical(msg)
 
 
-Log.configure_logging()  # Set logging level to INFO
+if ENV_VAR.DEBUG:
+    LOG.configure_logging(logging.DEBUG)
