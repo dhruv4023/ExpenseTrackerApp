@@ -16,7 +16,7 @@ class MyApp extends StatelessWidget {
       home: const SplashScreen(), // Set your splash screen as the initial route
       debugShowCheckedModeBanner: false,
       routes: {
-        '/login': (context) => LoginPage(), 
+        '/auth': (context) => LoginPage(), 
         '/home': (context) => const HomePage(), // Define your homepage route
       },
     );
