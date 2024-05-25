@@ -21,12 +21,19 @@ class buildSearchField extends StatelessWidget {
   }
 }
 
-List<Widget> buildAppBarActions(bool isSearching, Function toggleSearch) {
+List<Widget> buildAppBarActions(
+    bool isSearching, Function toggleSearch, Function logout) {
   return [
     IconButton(
       icon: isSearching ? const Icon(Icons.clear) : const Icon(Icons.search),
       onPressed: () {
         toggleSearch(!isSearching);
+      },
+    ),
+    IconButton(
+      icon: Icon(Icons.logout),
+      onPressed: () {
+        logout();
       },
     ),
   ];

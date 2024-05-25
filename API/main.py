@@ -6,7 +6,7 @@ from appConfig import ENV_VAR
 import database.main
 
 # import os
-origins = ["http://localhost:3000"]
+origins = ["*"]
 
 # origins = os.getenv("ALLOWED_ORIGINS", "").split(",")
 app = FastAPI(debug=ENV_VAR.DEBUG)

@@ -12,7 +12,7 @@ class ENV_VAR:
     DEBUG = (
         os.environ.get("DEBUG").lower() == "true" if os.environ.get("DEBUG") else False
     )
-
+print(os.environ.get("AUTH_API_END"))
 
 class CONST_VAR:
     COLLECTIONS = {
