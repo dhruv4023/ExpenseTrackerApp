@@ -1,6 +1,4 @@
 import 'dart:typed_data';
-import 'dart:convert';
-
 import 'package:http_parser/http_parser.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -85,26 +83,17 @@ class _LoginPageState extends State<LoginPage> {
         // Perform signup
         String username = _usernameController.text;
         String password = _passwordController.text;
-        // String firstName = _firstNameController.text;
-        // String lastName = _lastNameController.text;
-        // String email = _emailController.text;
         String state = _stateController.text;
-        // String city = _cityController.text;
-        // String pincode = _pincodeController.text;
-        // List<int>? imageBytes =
-        //     _image != null ? await _image!.readAsBytes() : null;
-        print(username);
-        print(password);
 
-        List<int> fileBytes = await _image!.readAsBytes();
-        Uint8List uint8List = Uint8List.fromList(fileBytes);
+        Uint8List? uint8List;
+        if (_image != null) {
+          List<int> fileBytes = await _image!.readAsBytes();
+          uint8List = Uint8List.fromList(fileBytes);
+        }
 
         FormData formData = FormData.fromMap({
           'username': username,
           'password': password,
-          // 'firstName': firstName,
-          // 'lastName': lastName,
-          // 'email': email,
           'location': {
             'state': state,
             //   'city': city,
