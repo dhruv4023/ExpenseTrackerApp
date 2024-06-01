@@ -1,7 +1,11 @@
-import 'package:expense_tracker/widgets/SearchOnAppBar.dart';
-import 'package:expense_tracker/screen/Login/login_page.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:expense_tracker/Models/Transactions.dart';
+import 'package:expense_tracker/screen/user/Login/login_page.dart';
+import 'package:expense_tracker/widgets/custom_app_bar.dart';
+import 'package:expense_tracker/widgets/bottom_nav_bar.dart'; // Import BottomNavBar
+import 'package:expense_tracker/functions/switches.dart'; // Import BottomNavBar
+import 'package:expense_tracker/screen/home/widgets/tnxs_widget.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -11,8 +15,26 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  bool _isAuthenticated = false;
-  bool _isSearching = false;
+  bool isAuthenticated = false; // false;
+  int _selectedIndex = 1;
+
+  final transactions = [
+    Transaction(
+      id: '1',
+      dateTime: '2024-05-26 14:00',
+      comment: 'Groceries',
+      labelId: 'label1',
+      amt: 100,
+    ),
+    Transaction(
+      id: '2',
+      dateTime: '2024-05-27 16:00',
+      comment: 'Rent',
+      labelId: 'label2',
+      amt: 500,
+    ),
+    // Add more transactions here
+  ];
 
   @override
   void initState() {
@@ -20,50 +42,44 @@ class _HomePageState extends State<HomePage> {
     _checkAuthentication();
   }
 
-  void _logout() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.remove('token'); // Remove token from SharedPreferences
-    setState(() {
-      _isAuthenticated = false; // Update authentication status
-    });
-  }
-
   Future<void> _checkAuthentication() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
     setState(() {
-      _isAuthenticated = token != null && token.isNotEmpty;
+      isAuthenticated = token != null && token.isNotEmpty;
     });
+  }
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+    switches(index, context);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(kToolbarHeight),
-        child: SizedBox(
-          child: _isAuthenticated ? _AppBar() : null,
-        ),
-      ),
-      body: _isAuthenticated
-          ? const Center(child: Text('Welcome to the Home Page!'))
+      appBar: isAuthenticated
+          ? CustomAppBar(isAuthenticated: isAuthenticated)
+          : null,
+      body: isAuthenticated
+          ? _homeContent()
           : LoginPage(), // Redirect to authentication page if not authenticated
+      bottomNavigationBar: isAuthenticated
+          ? BottomNavBar(
+              selectedIndex: _selectedIndex,
+              onItemTapped: _onItemTapped,
+            )
+          : null,
     );
   }
 
-  Widget _AppBar() {
-    return AppBar(
-      backgroundColor: Colors.grey,
-      automaticallyImplyLeading: false,
-      title:
-          _isSearching ? buildSearchField() : const Text('Expense Tracker App'),
-      actions: buildAppBarActions(_isSearching, toggleSearch, _logout),
+  Widget _homeContent() {
+    return Column(
+      children: [
+        Expanded(child: TnxWidget(transactions: transactions)),
+      ],
     );
-  }
-
-  void toggleSearch(bool isSearching) {
-    setState(() {
-      _isSearching = isSearching;
-    });
   }
 }

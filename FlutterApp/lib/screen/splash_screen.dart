@@ -13,7 +13,7 @@ class _SplashScreenState extends State<SplashScreen> {
     super.initState();
     // Delay for 5 seconds and then navigate to the homepage
     Future.delayed(const Duration(seconds: 5), () {
-      Navigator.of(context).pushReplacementNamed('');
+      Navigator.of(context).pushReplacementNamed('/home');
     });
   }
 
