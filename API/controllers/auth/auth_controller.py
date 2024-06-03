@@ -50,11 +50,9 @@ async def login_control(req: dict):
 
 
 @router.post("/change/password/")
-async def change_pass_control(req: dict, authorization: str = None):
+async def change_pass_control(req: dict):
     try:
         headers = {"Content-Type": "application/json"}
-        if authorization:
-            headers["Authorization"] = authorization
 
         response = sendRequest(
             f"{AUTH_API_END}/api/v1/auth/change/password", "post", req, None, headers

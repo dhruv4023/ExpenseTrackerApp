@@ -30,10 +30,12 @@ class _LabelsPageState extends State<LabelsPage> {
       body: Center(
         child: Text('Labels Page'),
       ),
-      bottomNavigationBar: BottomNavBar(
-        selectedIndex: _selectedIndex,
-        onItemTapped: _onItemTapped,
-      ),
+      bottomNavigationBar: isAuthenticated
+          ? BottomNavBar(
+              selectedIndex: _selectedIndex,
+              onItemTapped: _onItemTapped,
+            )
+          : null,
     );
   }
 }

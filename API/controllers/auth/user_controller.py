@@ -16,11 +16,13 @@ async def get_users(uid: str):
     except Exception as error:
         return ResponseHandler.error(error)
 
+
 def get_user_date(uid):
     return sendRequest(
         url=f"{AUTH_API_END}/api/v1/user/get/userid/{uid}",
         headers={"Content-Type": "application/json"},
     )
+
 
 @router.put("/update/")
 async def update_user_data(

@@ -8,7 +8,7 @@ AUTH_API_END = ENV_VAR.AUTH_API_END
 
 
 @router.post("/send-otp")
-async def send_otp_controller(req: Request):
+async def send_otp_controller(req: dict):
     try:
         # Make the request to the authentication API endpoint
         response = sendRequest(

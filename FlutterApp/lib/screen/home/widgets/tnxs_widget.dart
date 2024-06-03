@@ -10,6 +10,7 @@ class TnxWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      
       height: 500,
       padding: EdgeInsets.all(10.0),
       decoration: BoxDecoration(
