@@ -1,9 +1,10 @@
 import 'dart:convert';
+import 'package:expense_tracker/functions/auth_shared_preference.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart'; // Import ImagePicker
-import 'package:shared_preferences/shared_preferences.dart';
+// import 'package:shared_preferences/shared_preferences.dart';
 import 'package:expense_tracker/config/ENV_VARS.dart'; // Import config.dart
 import 'package:expense_tracker/widgets/alert_dialog.dart'; // Import config.dart
 import 'package:expense_tracker/screen/auth_user/Login/forgot_password.dart'; // Import config.dart
@@ -56,10 +57,9 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Future<void> _checkOpenForm() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString('token');
-    if (token != null && token.isNotEmpty) {
-      String? userJson = prefs.getString('user');
+    String token = await retriveToken();
+    if (token.isNotEmpty) {
+      String? userJson = await retriveUserData();
       if (userJson != null) {
         setState(() {
           _authForm = UPDATE;
@@ -69,14 +69,11 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Future<void> saveUserToSharedPreferences(Map<String, dynamic> user) async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    // String userJson = jsonEncode(user.toJson());
-    await prefs.setString('user', jsonEncode(user));
+    saveUser(user);
   }
 
   Future<void> saveTokenToSharedPreferences(String token) async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setString('token', token);
+    saveToken(token);
   }
 
   String? _validateRequired(String? value, String fieldName) {
@@ -97,24 +94,41 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Future<void> _tmp_login() async {
-    await saveTokenToSharedPreferences(
-        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MTcyODI3NjEsInVzZXJJZCI6IjY1Yjc1MTMwOGI2ODJjMWU4ZTMzYjZlYSIsInVzZXJuYW1lIjoiZGhydXY0MDIzIiwicm9sZSI6ImFkbWluIiwiaWF0IjoxNzE3MjY0NzYxfQ.E4zpm_qY8-FYlDyzDDaGsnJwhqjM5j2eBd6eFaXqSSQ");
-    await saveUserToSharedPreferences({
-      "location": {"state": "Gujarat", "city": "Chikhli", "pincode": 396521},
-      "_id": "65b751308b682c1e8e33b6ea",
-      "firstName": "Dhruv",
-      "lastName": "Patel",
-      "username": "dhruv4023",
-      "about": "nothing ",
-      "email": "dhruv20345@gmail.com",
-      "picPath": "Users/dhruv4023/profileImg",
-      "impressions": 0,
-      "createdAt": "2024-01-29T07:18:08.142Z",
-      "updatedAt": "2024-04-17T07:25:52.455Z",
-      "__v": 0,
-      "role": "admin"
-    });
-    Navigator.of(context).pushReplacementNamed('/home');
+    setState(() {
+      _isLoading = true; // Start loading indicator
+      errorMessage = "";
+    }); 
+    try {
+      final loginResponse = await http.post(
+        Uri.parse('$API_URL/auth/login'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode({
+          'uid': "dhruv40123",
+          'password': "123Tes",
+        }),
+      );
+
+      if (loginResponse.statusCode == 200) {
+        Map<String, dynamic> loginResponseData = jsonDecode(loginResponse.body);
+
+        await saveTokenToSharedPreferences(loginResponseData['data']['token']);
+        await saveUserToSharedPreferences(loginResponseData['data']['user']);
+        Navigator.of(context).pushReplacementNamed('/home');
+      } else {
+        Map<String, dynamic> loginResponseData = jsonDecode(loginResponse.body);
+        setState(() {
+          errorMessage = loginResponseData['message'];
+        });
+      }
+    } catch (e) {
+      print('Login Exception: $e');
+    } finally {
+      setState(() {
+        _isLoading = false; // stop loading indicator
+      });
+    }
   }
 
   void _navigateToForgotPassword() {
@@ -236,8 +250,7 @@ class _LoginPageState extends State<LoginPage> {
               print('Signup Exception: $e');
             }
           } else if (_authForm == UPDATE) {
-            SharedPreferences prefs = await SharedPreferences.getInstance();
-            String? userToken = prefs.getString('token');
+            String userToken = await retriveToken();
             var updateApiUrl = Uri.parse('$API_URL/user/update/');
             var request = http.MultipartRequest('PUT', updateApiUrl)
               ..fields['firstName'] = firstName
@@ -247,7 +260,7 @@ class _LoginPageState extends State<LoginPage> {
               ..fields['location.state'] = state
               ..fields['location.city'] = city
               ..fields['location.pincode'] = pincode
-              ..headers['Authorization'] = 'Bearer $userToken';
+              ..headers['Authorization'] = userToken;
 
             if (_image != null) {
               List<int> fileBytes = await _image!.readAsBytes();

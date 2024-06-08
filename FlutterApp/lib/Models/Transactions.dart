@@ -3,7 +3,7 @@ class Transaction {
   final String dateTime;
   final String comment;
   final String labelId;
-  final int amt;
+  final double amt;
 
   Transaction({
     required this.id,

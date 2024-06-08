@@ -5,7 +5,7 @@ import 'package:expense_tracker/screen/auth_user/Login/login_page.dart';
 import 'package:expense_tracker/widgets/custom_app_bar.dart';
 import 'package:expense_tracker/widgets/bottom_nav_bar.dart'; // Import BottomNavBar
 import 'package:expense_tracker/functions/switches.dart'; // Import BottomNavBar
-import 'package:expense_tracker/screen/home/widgets/tnxs_widget.dart';
+import 'package:expense_tracker/screen/transactions/widgets/tnxs_widget.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -40,6 +40,7 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     _checkAuthentication();
+    
   }
 
   Future<void> _checkAuthentication() async {
@@ -82,7 +83,7 @@ class _HomePageState extends State<HomePage> {
         //   child: Title(
         //       color: Colors.black26, child: const Text("All Transactions")),
         // ),
-        Expanded(child: TnxWidget(transactions: transactions)),
+        // Expanded(child: TnxWidget(transactions: transactions)),
       ],
     );
   }

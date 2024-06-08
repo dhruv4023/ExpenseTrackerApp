@@ -4,8 +4,9 @@ import 'package:expense_tracker/Models/Transactions.dart';
 class TransactionRow extends StatefulWidget {
   final Transaction transaction;
   final bool isLargeScreen;
+  final String label_name;
 
-  TransactionRow({required this.transaction, required this.isLargeScreen});
+  TransactionRow({required this.transaction,required this.label_name, required this.isLargeScreen});
 
   @override
   _TransactionRowState createState() => _TransactionRowState();
@@ -21,7 +22,7 @@ class _TransactionRowState extends State<TransactionRow> {
       children: [
         Row(
           children: [
-            Expanded(child: Text(widget.transaction.labelId)),
+            Expanded(child: Text(widget.label_name)),
             Expanded(child: Text(widget.transaction.amt.toString())),
             if (widget.isLargeScreen)
               Expanded(child: Text(widget.transaction.dateTime)),
@@ -45,9 +46,6 @@ class _TransactionRowState extends State<TransactionRow> {
             padding: const EdgeInsets.symmetric(horizontal: 5.0),
             child: Column(
               children: [
-                ListTile(
-                  title: Text('ID: ${widget.transaction.id}'),
-                ),
                 ListTile(
                   title: Text('DateTime: ${widget.transaction.dateTime}'),
                 ),

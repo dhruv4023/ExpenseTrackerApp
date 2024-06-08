@@ -120,6 +120,17 @@ def getLabels(walletId: str, session=None):
         raise Exception("Failed to retrieve labels: " + str(e))
 
 
+def getAllLabelsNameAndIdOnly(walletId: str, session=None):
+    try:
+        return totalAndLabel.find_one(
+            {"_id": walletId},
+            {"labels._id": 1, "labels.label_name": 1, "labels.default": 1},
+            session=session,
+        )["labels"]
+    except Exception as e:
+        raise Exception("Failed to retrieve labels: " + str(e))
+
+
 # increment total while adding new transaction
 def incrementInTotalCollection(walletId: str, transactionData: dict, session):
     try:
@@ -165,7 +176,7 @@ def decreamentAndIncrement(
     walletId: str, newLabelId: str, transactionData: dict, session
 ):
     try:
-        if newLabelId not in getistOfLabelIds(walletId): 
+        if newLabelId not in getistOfLabelIds(walletId):
             raise Exception("Label not exist")
         amt = transactionData["amt"]
         oldLabelId = transactionData["label_id"]

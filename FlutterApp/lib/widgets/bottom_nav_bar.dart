@@ -13,6 +13,13 @@ class BottomNavBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BottomNavigationBar(
+      type: BottomNavigationBarType
+          .fixed, // This is important for more than three items
+      // backgroundColor: Colors
+      //     .amberAccent, // Set background color for the whole BottomNavigationBar
+      selectedItemColor: Colors.redAccent, // Color for selected item
+      unselectedItemColor: Colors.black, // Color for unselected items
+
       items: const <BottomNavigationBarItem>[
         BottomNavigationBarItem(
           icon: Icon(Icons.person),
@@ -21,6 +28,10 @@ class BottomNavBar extends StatelessWidget {
         BottomNavigationBarItem(
           icon: Icon(Icons.home),
           label: 'Home',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.list),
+          label: 'Transactions',
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.label),

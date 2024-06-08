@@ -1,3 +1,4 @@
+import 'package:expense_tracker/screen/transactions/transactions.dart';
 import 'package:flutter/material.dart';
 import 'package:expense_tracker/screen/splash_screen.dart';
 import 'package:expense_tracker/screen/home/home_page.dart';
@@ -24,6 +25,7 @@ class MyApp extends StatelessWidget {
       routes: {
         '/home': (context) => const HomePage(),
         '/profile': (context) => const ProfilePage(),
+        '/transactions': (context) => const TransactionsPage(),
         '/labels': (context) => const LabelsPage()
       },
     );

@@ -9,7 +9,7 @@ import 'package:flutter/material.dart';
         Navigator.of(context).pushReplacementNamed('/home');
         break;
       case 2:
-        Navigator.of(context).pushReplacementNamed('/labels');
+        Navigator.of(context).pushReplacementNamed('/transactions');
         break;
       case 3:
         Navigator.of(context).pushReplacementNamed('/labels');

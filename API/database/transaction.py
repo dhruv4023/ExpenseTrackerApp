@@ -6,13 +6,14 @@ from database.total_and_label import (
     decrementInTotalCollection,
     decreamentAndIncrement,
     getDefaultLabelId,
+    getAllLabelsNameAndIdOnly,
 )
 
 
 def addNewTransaction(
     userId: str,
     comment: str,
-    amt: int,
+    amt: float,
     labelId: str,
     dateTime: str = getDateTimeUniqueNumber(),
 ):
@@ -82,7 +83,7 @@ def editTransactionsComment(walletId: str, transactionId: str, comment: str):
 def changelableTransactions(walletId: str, newLabelId: str, transactionId: str):
     try:
         transactionData = getTransactionById(walletId, transactionId)
-        if transactionData["label_id"]==newLabelId:
+        if transactionData["label_id"] == newLabelId:
             return True
         query = {
             "_id": walletId,
@@ -117,8 +118,11 @@ def getTransactions(walletId: str, page: int = 1, limit: int = 10):
             },
         },
     )
+    labels = None
+    if page == 1:
+        labels = getAllLabelsNameAndIdOnly(walletId)
     return get_paginated_response(
-        list(tnxs["transactions"]), page, limit, tnxs["transactionCount"]
+        list(tnxs["transactions"]), page, limit, tnxs["transactionCount"], **{"labels":labels}
     )
 
 

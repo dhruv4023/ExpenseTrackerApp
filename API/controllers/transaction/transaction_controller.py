@@ -19,7 +19,7 @@ async def add_transaction(req: Request, token: str = Depends(verify_token)):
         comment = body.get("comment")
         amt = body.get("amt")
         labelId = body.get("labelId")
-        if addNewTransaction(token["username"], comment, amt, labelId):
+        if addNewTransaction(token["username"], comment, float(amt), labelId):
             return ResponseHandler.success(2001)
     except Exception as e:
         return ResponseHandler.error(9999, e)

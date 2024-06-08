@@ -12,7 +12,7 @@ transaction_schema = {
     "dateTime": str,
     "comment": str,
     "label_id": str,
-    "amt": int,
+    "amt": float,
 }
 
 # Schema for wallets collection
@@ -40,8 +40,8 @@ label_schema = {
 }
 
 total_schema = {
-    "dr": int,
-    "cr": int,
+    "dr": float,
+    "cr": float,
 }
 
 
