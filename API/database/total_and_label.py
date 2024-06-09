@@ -38,6 +38,7 @@ def addLabel(
     UID: str, labelName: str, labelId=str(getUniqueId()), default=False, session=None
 ):
     try:
+        print(labelName)
         _id = UID + "_" + str(datetime.now().date())[:4]
         doc = {"_id": labelId, "label_name": labelName, "default": default}
         doc = generateArrayOfMonthlyTotal(doc)
@@ -205,8 +206,8 @@ def decreamentAndIncrement(
 
 def generateArrayOfMonthlyTotal(res):
     doc = {
-        "dr": 0,
-        "cr": 0,
+        "dr": 0.0,
+        "cr": 0.0,
     }
     validate_document(doc, total_schema)
     for i in range(0, 12):

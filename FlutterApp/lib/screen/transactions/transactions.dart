@@ -34,12 +34,14 @@ class _TransactionsPageState extends State<TransactionsPage> {
   }
 
   Future<void> fetchTransactions({int page = 1}) async {
+    String? walletId = await retriveWalletId();
+
     setState(() {
       isLoading = true;
     });
 
     final url = Uri.parse(
-        '$API_URL/transaction/get/wallet/dhruv40123_2024?page=$page&limit=10');
+        '$API_URL/transaction/get/wallet/$walletId?page=$page&limit=10');
     final headers = {'Authorization': await retriveToken()};
 
     try {
@@ -108,27 +110,6 @@ class _TransactionsPageState extends State<TransactionsPage> {
                   child: TnxWidget(
                       transactions: transactions,
                       labelsMetadata: labelsMetadata)),
-          // Container(
-          //   height: 50,
-          //   child: ListView.builder(
-          //     scrollDirection: Axis.horizontal,
-          //     itemCount: totalPages,
-          //     itemBuilder: (context, index) {
-          //       final pageNumber = index + 1;
-          //       return Padding(
-          //         padding: const EdgeInsets.symmetric(horizontal: 8.0),
-          //         child: ElevatedButton(
-          //           onPressed: () => _goToPage(pageNumber),
-          //           style: ElevatedButton.styleFrom(
-          //             backgroundColor:
-          //                 pageNumber == currentPage ? Colors.blue : null,
-          //           ),
-          //           child: Text(pageNumber.toString()),
-          //         ),
-          //       );
-          //     },
-          //   ),
-          // ),
         ],
       ),
       bottomNavigationBar: BottomNavBar(
