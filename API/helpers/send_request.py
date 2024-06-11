@@ -1,5 +1,5 @@
 from requests import request
-
+from appConfig import LOG
 
 def sendRequest(url, method="get", data=None, files=None, headers=None):
     try:
@@ -8,5 +8,5 @@ def sendRequest(url, method="get", data=None, files=None, headers=None):
         return request(method, url, json=data, headers=headers)
     except Exception as e:
         # Handle exceptions and return None
-        print(f"Error occurred during request: {e}")
+        LOG.debug(f"Error occurred during request: {e}")
         return None

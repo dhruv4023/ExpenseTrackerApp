@@ -4,29 +4,29 @@ from  database.total_and_label import addLabel
 
 # to archive previous year transactions
 def archiveTransactions(doc_id: str):
-    # print(doc_id)
+    LOG.debug(doc_id)
     oldTransMethId = doc_id[:-2]+str(int(doc_id[-2:])-1)
     oldIdQuery = {"_id": oldTransMethId}
 
     tranMethObj = wallets.find_one(oldIdQuery)
     totalAndLabelObj = totalAndLabel.find_one(oldIdQuery)
 
-    # print(totalAndLabelObj)
+    LOG.debug(totalAndLabelObj)
     if archivedTransactions.insert_one(tranMethObj) and archivedTotalAndLabel.insert_one(totalAndLabelObj):
         wallets.delete_one(oldIdQuery)
         totalAndLabel.delete_one(oldIdQuery)
 
         try:
             labelNames = totalAndLabelObj["labels"]
-            # print(labelNames)
+            LOG.debug(labelNames)
             i = 0
             for label in labelNames:
-                # print(label["labelName"])
+                LOG.debug(label["labelName"])
                 if i:
                     addLabel(_id=doc_id, labelName=label["labelName"])
                 else:
                     i = 1
         except:
-            print("label not added")
+            LOG.debug("label not added")
 
     return True

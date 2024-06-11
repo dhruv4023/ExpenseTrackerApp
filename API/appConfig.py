@@ -12,7 +12,6 @@ class ENV_VAR:
     DEBUG = (
         os.environ.get("DEBUG").lower() == "true" if os.environ.get("DEBUG") else False
     )
-print(os.environ.get("AUTH_API_END"))
 
 class CONST_VAR:
     COLLECTIONS = {
@@ -55,3 +54,5 @@ class LOG:
 
 if ENV_VAR.DEBUG:
     LOG.configure_logging(logging.DEBUG)
+
+LOG.debug(os.environ.get("AUTH_API_END"))

@@ -47,24 +47,23 @@ def addNewTransaction(
 
                 return True
             except Exception as e:
-                # Abort transaction on error
                 session.abort_transaction()
-                print(f"Error adding new transaction: {e}")
-                # Decrement total collection
-                # decrementInTotalCollection(walletId, doc, session=session)
+                LOG.debug(f"Error adding new transaction: {e}")
                 return False
 
 
 # to delete a transaction from transactions array
-def deleteTransaction(walletId: str, transactionData: dict):
+def deleteTransaction(walletId: str, transactionId: str):
     try:
         query = {"_id": walletId}
-        update = {"$pull": {"transactions": {"_id": transactionData["transactionId"]}}}
+        transactionData = getTransactionById(walletId, transactionId)
+        update = {"$pull": {"transactions": {"_id": transactionData["_id"]}}}
         with db_client.start_session() as session:
             return decrementInTotalCollection(
                 walletId, transactionData, session=session
             ) and updateOne(query, update, session=session)
     except Exception as e:
+        LOG.debug(f"Error deleting transaction: {e}")
         raise Exception(f"Error deleting transaction: {e}")
 
 
@@ -76,6 +75,7 @@ def editTransactionsComment(walletId: str, transactionId: str, comment: str):
         with db_client.start_session() as session:
             return updateOne(query, update, session=session)
     except Exception as e:
+        LOG.debug(f"Error editing comment in transaction: {e}")
         raise Exception(f"Error editing comment in transaction: {e}")
 
 
@@ -102,7 +102,7 @@ def changelableTransactions(walletId: str, newLabelId: str, transactionId: str):
                 raise Exception(f"Error changing label in transaction")
             return True
     except Exception as e:
-        print(f"Error changing label in transaction: {e}")
+        LOG.debug(f"Error changing label in transaction: {e}")
         raise Exception(f"Error changing label in transaction: {e}")
 
 
@@ -122,7 +122,11 @@ def getTransactions(walletId: str, page: int = 1, limit: int = 10):
     if page == 1:
         labels = getAllLabelsNameAndIdOnly(walletId)
     return get_paginated_response(
-        list(tnxs["transactions"]), page, limit, tnxs["transactionCount"], **{"labels":labels}
+        list(tnxs["transactions"]),
+        page,
+        limit,
+        tnxs["transactionCount"],
+        **{"labels": labels},
     )
 
 

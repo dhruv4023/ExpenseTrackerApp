@@ -6,6 +6,7 @@ import 'package:expense_tracker/widgets/custom_app_bar.dart';
 import 'package:expense_tracker/widgets/bottom_nav_bar.dart'; // Import BottomNavBar
 import 'package:expense_tracker/functions/switches.dart'; // Import BottomNavBar
 import 'package:expense_tracker/screen/transactions/widgets/tnxs_widget.dart';
+import 'package:expense_tracker/Models/LabelMetaData.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -15,7 +16,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  bool isAuthenticated = false; // false;
+  bool isAuthenticated = false;
   int _selectedIndex = 1;
 
   final transactions = [
@@ -36,11 +37,24 @@ class _HomePageState extends State<HomePage> {
     // Add more transactions here
   ];
 
+  final labelsMetadata = [
+    LabelMetaData(
+      id: 'label1',
+      labelName: 'Groceries',
+      isDefault: false,
+    ),
+    LabelMetaData(
+      id: 'label2',
+      labelName: 'Rent',
+      isDefault: false,
+    ),
+    // Add more labels here
+  ];
+
   @override
   void initState() {
     super.initState();
     _checkAuthentication();
-    
   }
 
   Future<void> _checkAuthentication() async {
@@ -79,11 +93,28 @@ class _HomePageState extends State<HomePage> {
   Widget _homeContent() {
     return Column(
       children: [
-        // Container(
-        //   child: Title(
-        //       color: Colors.black26, child: const Text("All Transactions")),
-        // ),
-        // Expanded(child: TnxWidget(transactions: transactions)),
+        const Padding(
+          padding: EdgeInsets.all(16.0),
+          child: Text(
+            "All Transactions",
+            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+          ),
+        ),
+        Expanded(
+          child: TnxWidget(
+            transactions: transactions,
+            labelsMetadata: labelsMetadata,
+            onEditTransactionComment: (walletId) {
+              // Handle edit comment logic
+            },
+            onEditTransactionLabel: (walletId) {
+              // Handle edit label logic
+            },
+            onDeleteTransaction: (walletId) {
+              // Handle delete transaction logic
+            },
+          ),
+        ),
       ],
     );
   }

@@ -38,7 +38,6 @@ def addLabel(
     UID: str, labelName: str, labelId=str(getUniqueId()), default=False, session=None
 ):
     try:
-        print(labelName)
         _id = UID + "_" + str(datetime.now().date())[:4]
         doc = {"_id": labelId, "label_name": labelName, "default": default}
         doc = generateArrayOfMonthlyTotal(doc)

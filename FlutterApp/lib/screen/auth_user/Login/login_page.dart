@@ -4,10 +4,10 @@ import 'package:http_parser/http_parser.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart'; // Import ImagePicker
-// import 'package:shared_preferences/shared_preferences.dart';
 import 'package:expense_tracker/config/ENV_VARS.dart'; // Import config.dart
 import 'package:expense_tracker/widgets/alert_dialog.dart'; // Import config.dart
 import 'package:expense_tracker/screen/auth_user/Login/forgot_password.dart'; // Import config.dart
+import 'package:expense_tracker/functions/show_toast.dart'; // Import config.dart
 
 class LoginPage extends StatefulWidget {
   final Map<String, dynamic>? user;
@@ -123,7 +123,7 @@ class _LoginPageState extends State<LoginPage> {
         });
       }
     } catch (e) {
-      print('Login Exception: $e');
+      showToast('Login Exception: $e');
     } finally {
       setState(() {
         _isLoading = false; // stop loading indicator
@@ -185,7 +185,7 @@ class _LoginPageState extends State<LoginPage> {
               });
             }
           } catch (e) {
-            print('Login Exception: $e');
+            showToast('Login Exception: $e');
           }
         } else {
           // Perform signup
@@ -247,7 +247,7 @@ class _LoginPageState extends State<LoginPage> {
                 });
               }
             } catch (e) {
-              print('Signup Exception: $e');
+              showToast('Signup Exception: $e');
             }
           } else if (_authForm == UPDATE) {
             String userToken = await retriveToken();
@@ -298,13 +298,13 @@ class _LoginPageState extends State<LoginPage> {
                 });
               }
             } catch (e) {
-              print('UPDATE Exception: $e');
+              showToast('UPDATE Exception: $e');
             }
           }
         }
       }
     } catch (e) {
-      print('Submit Form Exception: $e');
+      showToast('Submit Form Exception: $e');
     } finally {
       setState(() {
         _isLoading = false; // stop loading indicator

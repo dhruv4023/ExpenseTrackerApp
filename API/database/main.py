@@ -1,11 +1,11 @@
 from database.schemas import *
 from datetime import datetime
 from pymongo import MongoClient
-from appConfig import ENV_VAR, CONST_VAR
+from appConfig import ENV_VAR, CONST_VAR,LOG
 
 db_client = MongoClient(ENV_VAR.MONGO_DB_URL)
 
-print("Connected successfully")
+LOG.debug("Connected successfully")
 
 db = db_client["ExpenseTrackerDb"]
 

@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Request
-from appConfig import ENV_VAR
+from appConfig import ENV_VAR, LOG
 from helpers.response import ResponseHandler
 from helpers.send_request import sendRequest
 
@@ -22,5 +22,5 @@ async def send_otp_controller(req: dict):
         return ResponseHandler.success_mediator(response)
     except Exception as e:
         # Log and handle any exceptions
-        print(e)
+        LOG.debug(e)
         return ResponseHandler.error(9999, e)

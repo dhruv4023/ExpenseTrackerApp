@@ -19,12 +19,9 @@ async def register(req: Request, picPath: UploadFile = None):
         if picPath:
             files = {"picPath": (picPath.filename, picPath.file, picPath.content_type)}
 
-        print(payload, picPath, files)
-        # else    f"{AUTH_API_END}/api/v1/auth/register/", json=payload}
         response = sendRequest(
             f"{AUTH_API_END}/api/v1/auth/register/", "post", payload, files
         )
-        print(response.content)
         return ResponseHandler.success_mediator(response)
     except Exception as e:
         return ResponseHandler.error(9999, e)
@@ -42,7 +39,6 @@ async def get_user_names():
 @router.post("/login")
 async def login_control(req: dict):
     try:
-        print("AUTH_API_END :", AUTH_API_END)
         response = sendRequest(f"{AUTH_API_END}/api/v1/auth/login/", "post", req)
         return ResponseHandler.success_mediator(response)
     except Exception as e:

@@ -22,7 +22,7 @@ class _PaginationState extends State<Pagination> {
   }
 
   void _scrollToSelectedPage() {
-    WidgetsBinding.instance!.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       if (_scrollController.hasClients) {
         final selectedButtonContext = context.findRenderObject() as RenderBox;
         final selectedButtonSize = selectedButtonContext.size;

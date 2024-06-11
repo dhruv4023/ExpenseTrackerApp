@@ -32,7 +32,7 @@ async def delete_transaction(
     try:
         if walletId[:-5] != token["username"]:
             return ResponseHandler.error(5001, None, 403)
-        if deleteTransaction(walletId, {"transactionId": transactionId}):
+        if deleteTransaction(walletId,  transactionId):
             return ResponseHandler.success(2003)
         else:
             return ResponseHandler.error(2004)

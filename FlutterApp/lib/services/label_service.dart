@@ -19,7 +19,7 @@ class LabelService {
     final response = await http.post(url, headers: headers, body: payload);
     if (response.statusCode != 200) {
       Map<String, dynamic> responseData = jsonDecode(response.body);
-      throw Exception('Failed to add label: ${responseData["message"]}');
+      throw Exception('${responseData["message"]}');
     }
   }
 
@@ -35,7 +35,7 @@ class LabelService {
     final response = await http.put(url, headers: headers, body: payload);
     if (response.statusCode != 200) {
       Map<String, dynamic> responseData = jsonDecode(response.body);
-      throw Exception('Failed to add label: ${responseData["message"]}');
+      throw Exception('${responseData["message"]}');
     }
   }
 
@@ -50,7 +50,7 @@ class LabelService {
     final response = await http.put(url, headers: headers);
     if (response.statusCode != 200) {
       Map<String, dynamic> responseData = jsonDecode(response.body);
-      throw Exception('Failed to add label: ${responseData["message"]}');
+      throw Exception('${responseData["message"]}');
     }
   }
 }
