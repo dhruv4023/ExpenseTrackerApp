@@ -26,6 +26,7 @@ class _LabelsPageState extends State<LabelsPage> {
   List<Label> labels = [];
   bool isLoading = true;
   int? _expandedIndex;
+  int? _subExpandedIndex;
   @override
   void initState() {
     super.initState();
@@ -65,29 +66,55 @@ class _LabelsPageState extends State<LabelsPage> {
     switches(index, context);
   }
 
-  void _onExpansionChanged(int index) {
-    setState(() {
-      _expandedIndex = index == _expandedIndex ? null : index;
-    });
+  void _onExpansionChanged(int index, {bool subExpansion = false}) {
+    if (subExpansion) {
+      setState(() {
+        _subExpandedIndex = index == _subExpandedIndex ? null : index;
+      });
+    } else {
+      setState(() {
+        _expandedIndex = index == _expandedIndex ? null : index;
+      });
+    }
   }
 
   Future<void> _addLabel() async {
     final labelNameController = TextEditingController();
-
+    bool isAccount = false;
     await showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text('Add New Label'),
-          content: TextField(
-            controller: labelNameController,
-            decoration: InputDecoration(hintText: "Enter label name"),
+          title: Text('Add New Label / Account'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: labelNameController,
+                decoration:
+                    InputDecoration(hintText: "Enter label/account name"),
+              ),
+              Row(
+                children: [
+                  Checkbox(
+                    value: isAccount,
+                    onChanged: (newValue) {
+                      setState(() {
+                        isAccount = newValue!;
+                      });
+                    },
+                  ),
+                  Text('Is Account'),
+                ],
+              ),
+            ],
           ),
           actions: [
             TextButton(
               onPressed: () async {
                 try {
-                  await LabelService.addLabel(labelNameController.text);
+                  await LabelService.addLabel(
+                      labelNameController.text, isAccount);
                   await fetchLabels();
                   Navigator.of(context).pop();
                 } catch (e) {
@@ -157,6 +184,7 @@ class _LabelsPageState extends State<LabelsPage> {
               child: LabelList(
                 labels: labels,
                 expandedIndex: _expandedIndex,
+                subExpandedIndex: _subExpandedIndex,
                 onExpansionChanged: _onExpansionChanged,
                 onEditLabelName: _editLabelName,
                 onSetDefaultLabel: _setDefaultLabel,

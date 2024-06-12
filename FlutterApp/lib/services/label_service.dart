@@ -8,9 +8,10 @@ import 'package:expense_tracker/functions/auth_shared_preference.dart';
 class LabelService {
   static String baseUrl = "$API_URL/label";
 
-  static Future<void> addLabel(String labelName) async {
+  static Future<void> addLabel(String labelName, bool isAccount) async {
     final url = Uri.parse('$baseUrl/add/');
-    final payload = jsonEncode({"labelName": labelName});
+    final payload =
+        jsonEncode({"labelName": labelName, "isAccount": isAccount});
     final headers = {
       'Authorization': await retriveToken(),
       'Content-Type': 'application/json',

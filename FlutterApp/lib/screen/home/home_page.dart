@@ -25,6 +25,7 @@ class _HomePageState extends State<HomePage> {
       dateTime: '2024-05-26 14:00',
       comment: 'Groceries',
       labelId: 'label1',
+      accountId: 'label1',
       amt: 100,
     ),
     Transaction(
@@ -32,6 +33,7 @@ class _HomePageState extends State<HomePage> {
       dateTime: '2024-05-27 16:00',
       comment: 'Rent',
       labelId: 'label2',
+      accountId: 'label2',
       amt: 500,
     ),
     // Add more transactions here
@@ -42,11 +44,13 @@ class _HomePageState extends State<HomePage> {
       id: 'label1',
       labelName: 'Groceries',
       isDefault: false,
+      isAccount: false,
     ),
     LabelMetaData(
       id: 'label2',
       labelName: 'Rent',
       isDefault: false,
+      isAccount: false,
     ),
     // Add more labels here
   ];

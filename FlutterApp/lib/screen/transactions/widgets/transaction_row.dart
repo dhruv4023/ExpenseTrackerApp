@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:expense_tracker/Models/Transactions.dart';
 
 class TransactionRow extends StatefulWidget {
-  final String labelName;
+  final String labelName,accountName;
   final Transaction transaction;
   final bool isLargeScreen;
   final Function(String) onEditTransactionComment;
@@ -11,6 +11,7 @@ class TransactionRow extends StatefulWidget {
 
   TransactionRow({
     required this.labelName,
+    required this.accountName,
     required this.transaction,
     required this.isLargeScreen,
     required this.onEditTransactionComment,
@@ -32,8 +33,10 @@ class _TransactionRowState extends State<TransactionRow> {
       children: [
         Row(
           children: [
-            Expanded(child: Text(widget.labelName)),
+            Expanded(child: Text(widget.accountName)),
             Expanded(child: Text(widget.transaction.amt.toString())),
+            if (widget.isLargeScreen)
+              Expanded(child: Text(widget.labelName)),
             if (widget.isLargeScreen)
               Expanded(child: Text(widget.transaction.dateTime)),
             if (widget.isLargeScreen)
@@ -59,17 +62,20 @@ class _TransactionRowState extends State<TransactionRow> {
                   children: [
                     IconButton(
                       icon: Icon(Icons.edit),
+                      color: Colors.blue,
                       onPressed: () {
                         widget.onEditTransactionComment(widget.transaction.id);
                       },
                     ),
                     IconButton(
+                      color: Colors.amber,
                       icon: Icon(Icons.label),
                       onPressed: () {
                         widget.onEditTransactionLabel(widget.transaction.id);
                       },
                     ),
                     IconButton(
+                      color: Colors.red,
                       icon: Icon(Icons.delete),
                       onPressed: () {
                         widget.onDeleteTransaction(widget.transaction.id);

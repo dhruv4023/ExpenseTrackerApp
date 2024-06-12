@@ -6,14 +6,15 @@ import 'package:expense_tracker/Models/Label.dart';
 
 class LabelList extends StatelessWidget {
   final List<Label> labels;
-  final int? expandedIndex;
-  final Function(int) onExpansionChanged;
+  final int? expandedIndex, subExpandedIndex;
+  final void Function(int, {bool subExpansion}) onExpansionChanged;
   final Function(String) onEditLabelName;
   final Function(String) onSetDefaultLabel;
 
   LabelList({
     required this.labels,
     required this.expandedIndex,
+    required this.subExpandedIndex,
     required this.onExpansionChanged,
     required this.onEditLabelName,
     required this.onSetDefaultLabel,
@@ -28,10 +29,10 @@ class LabelList extends StatelessWidget {
       children: [
         ExpansionPanel(
           headerBuilder: (BuildContext context, bool isExpanded) {
-            return ListTile(
+            return const ListTile(
               title: Text(
                 'Total',
-                style: TextStyle(fontWeight: FontWeight.bold),
+                style: const TextStyle(fontWeight: FontWeight.bold),
               ),
             );
           },
@@ -47,57 +48,84 @@ class LabelList extends StatelessWidget {
           ),
           isExpanded: expandedIndex == 0,
         ),
-        ...labels.map<ExpansionPanel>((label) {
-          final index = labels.indexOf(label) + 1;
-          final totals = label.calculateTotalDrCr();
+        _buildExpansionPanel('Accounts', 1, isAccount: true),
+        _buildExpansionPanel('Labels', 2),
+      ],
+    );
+  }
+
+  ExpansionPanel _buildExpansionPanel(String title, int expansionPanelIndex,
+      {bool isAccount = false}) {
+    return ExpansionPanel(
+      headerBuilder: (BuildContext context, bool isExpanded) {
+        return ListTile(
+          title: Text(
+            title,
+            style: const TextStyle(fontWeight: FontWeight.bold),
+          ),
+        );
+      },
+      body: ExpansionPanelList(
+        expansionCallback: (int index, bool isExpanded) {
+          onExpansionChanged(index, subExpansion: true);
+        },
+        children: labels
+            .where((entry) => entry.isAccount == isAccount)
+            .toList()
+            .asMap()
+            .entries
+            .map<ExpansionPanel>((entry) {
+          final index = entry.key;
+          final totals = entry.value.calculateTotalDrCr();
+          Label label = entry.value;
           return ExpansionPanel(
-            headerBuilder: (BuildContext context, bool isExpanded) {
+            headerBuilder: (BuildContext context, bool isExpandedAccounts) {
               return ListTile(
                 title: Wrap(
                   children: [
                     Container(
-                      margin: EdgeInsets.symmetric(horizontal: 10.0),
+                      margin: const EdgeInsets.symmetric(horizontal: 10.0),
                       child: Text(
                         label.labelName,
-                        style: TextStyle(fontWeight: FontWeight.bold),
+                        style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
                     ),
                     Container(
-                      margin: EdgeInsets.symmetric(horizontal: 10.0),
+                      margin: const EdgeInsets.symmetric(horizontal: 10.0),
                       child: Text(
                         "CR: +${totals['total_cr']}",
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontWeight: FontWeight.bold,
-                          color: const Color.fromARGB(
+                          color: Color.fromARGB(
                               255, 165, 250, 168), // Set color for CR
                         ),
                       ),
                     ),
                     Container(
-                      margin: EdgeInsets.symmetric(horizontal: 10.0),
+                      margin: const EdgeInsets.symmetric(horizontal: 10.0),
                       child: Text(
                         "DR: -${totals['total_dr']}",
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontWeight: FontWeight.bold,
-                          color: const Color.fromARGB(
+                          color: Color.fromARGB(
                               255, 228, 130, 123), // Set color for DR
                         ),
                       ),
                     ),
                     Container(
-                      margin: EdgeInsets.symmetric(horizontal: 10.0),
+                      margin: const EdgeInsets.symmetric(horizontal: 10.0),
                       child: Text(
-                        "OVERALL: ${(totals['total_cr']! - totals['total_dr']!).toStringAsFixed(2)}",
+                        // "",
+                        "OVERALL: ${totals["overall"]}",
                         style: TextStyle(
                             fontWeight: FontWeight.bold,
-                            color:
-                                (totals['total_cr']! - totals['total_dr']!) < 0
-                                    ? Colors.red
-                                    : Colors.green),
+                            color: totals["overall"]! < 0
+                                ? Colors.red
+                                : Colors.blue),
                       ),
                     ),
                     IconButton(
-                      icon: Icon(Icons.edit),
+                      icon: const Icon(Icons.edit),
                       onPressed: () {
                         onEditLabelName(label.id);
                       },
@@ -108,8 +136,7 @@ class LabelList extends StatelessWidget {
                       onPressed: label.isDefault
                           ? null
                           : () {
-                              onSetDefaultLabel(
-                                  label.id);
+                              onSetDefaultLabel(label.id);
                             },
                     ),
                   ],
@@ -127,10 +154,11 @@ class LabelList extends StatelessWidget {
                 }).toList(),
               ),
             ),
-            isExpanded: expandedIndex == index,
+            isExpanded: subExpandedIndex == index,
           );
         }).toList(),
-      ],
+      ),
+      isExpanded: expandedIndex == expansionPanelIndex,
     );
   }
 
@@ -146,8 +174,10 @@ class LabelList extends StatelessWidget {
     double totalCr = 0;
 
     for (var label in labels) {
-      totalDr += label.monthlyData[monthKey]?['dr'] ?? 0;
-      totalCr += label.monthlyData[monthKey]?['cr'] ?? 0;
+      if (label.isAccount) {
+        totalDr += label.monthlyData[monthKey]?['dr'] ?? 0;
+        totalCr += label.monthlyData[monthKey]?['cr'] ?? 0;
+      }
     }
 
     totalDr = double.parse(totalDr.toStringAsFixed(2));
@@ -178,18 +208,19 @@ class LabelList extends StatelessWidget {
               SizedBox(width: 4.0),
               Text(
                 month,
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14.0),
+                style: const TextStyle(
+                    fontWeight: FontWeight.bold, fontSize: 14.0),
               ),
             ],
           ),
           SizedBox(height: 8.0),
           Text(
             'DR: $totalDr',
-            style: TextStyle(fontSize: 12.0),
+            style: const TextStyle(fontSize: 12.0),
           ),
           Text(
             'CR: $totalCr',
-            style: TextStyle(fontSize: 12.0),
+            style: const TextStyle(fontSize: 12.0),
           ),
           Text(
             'OVERALL: ${totalCr - totalDr}',

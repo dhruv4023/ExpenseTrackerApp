@@ -3,12 +3,14 @@ class Transaction {
   final String dateTime;
   final String comment;
   final String labelId;
+  final String accountId;
   final double amt;
 
   Transaction({
     required this.id,
     required this.dateTime,
     required this.comment,
+    required this.accountId,
     required this.labelId,
     required this.amt,
   });
@@ -18,6 +20,7 @@ class Transaction {
       id: json['_id'],
       dateTime: json['dateTime'],
       comment: json['comment'],
+      accountId: json['account_id'],
       labelId: json['label_id'],
       amt: json['amt'],
     );

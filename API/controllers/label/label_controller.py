@@ -17,7 +17,10 @@ async def add_label(req: Request, token: str = Depends(verify_token)):
     try:
         body = await req.json()
         labelName = body.get("labelName")
-        labelId = addLabel(token["username"], labelName)
+        isAccount = body.get("isAccount")
+        labelId = addLabel(
+            UID=token["username"], labelName=labelName, isAccount=isAccount
+        )
         return ResponseHandler.success(3001, {"labelId": labelId})
     except Exception as e:
         return ResponseHandler.error(9999, e)
@@ -38,7 +41,9 @@ async def edit_labelName(
         return ResponseHandler.error(9999, e)
 
 
-@router.put("/set/default/{labelId}/wallet/{walletId}/oldDefaultLabel/{oldDefaultLabelId}")
+@router.put(
+    "/set/default/{labelId}/wallet/{walletId}/oldDefaultLabel/{oldDefaultLabelId}"
+)
 async def set_default_label(
     walletId: str,
     labelId: str,

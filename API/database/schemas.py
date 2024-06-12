@@ -11,6 +11,7 @@ transaction_schema = {
     "_id": str,
     "dateTime": str,
     "comment": str,
+    "account_id": str,
     "label_id": str,
     "amt": float,
 }
@@ -25,6 +26,7 @@ label_schema = {
     "_id": str,
     "label_name": str,
     "default": bool,
+    "isAccount": bool,
     "jan": dict,
     "feb": dict,
     "mar": dict,

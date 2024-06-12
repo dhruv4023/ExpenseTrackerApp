@@ -10,7 +10,7 @@ import 'package:expense_tracker/functions/switches.dart';
 import 'package:expense_tracker/widgets/bottom_nav_bar.dart'; // Import BottomNavBar
 import 'package:expense_tracker/widgets/custom_app_bar.dart';
 import 'package:expense_tracker/functions/auth_shared_preference.dart';
-import 'package:expense_tracker/functions/drop_ctrl.dart';
+import 'package:expense_tracker/functions/drop_down_button.dart';
 import 'package:expense_tracker/screen/transactions/widgets/tnxs_widget.dart';
 import 'package:expense_tracker/widgets/pagination.dart';
 import 'package:expense_tracker/services/transaction_service.dart'; // Import TransactionService
@@ -100,15 +100,17 @@ class _TransactionsPageState extends State<TransactionsPage> {
   Future<void> _addTransaction() async {
     final commentController = TextEditingController();
     final amountController = TextEditingController();
-    final DropContr dropContr =
-        DropContr(labelsMetadata.firstWhere((e) => e.isDefault).id);
-    final DropContr dropDrCrContr = DropContr("-");
+    final DropController dropLabelContr = DropController(
+        labelsMetadata.firstWhere((e) => e.isDefault && !e.isAccount).id);
+    final DropController dropAccountContr = DropController(
+        labelsMetadata.firstWhere((e) => e.isDefault && e.isAccount).id);
+    final DropController dropDrCrContr = DropController("-");
 
     await showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text('Add New Transaction'),
+          title: const Text('Add New Transaction'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -121,48 +123,29 @@ class _TransactionsPageState extends State<TransactionsPage> {
                 decoration: const InputDecoration(hintText: "Enter amount"),
                 keyboardType: TextInputType.number,
               ),
-              ChangeNotifierProvider<DropContr>(
-                create: (_) => dropDrCrContr,
-                child: Consumer<DropContr>(
-                  builder: (context, dropDrCrContr, child) {
-                    return DropdownButton<String>(
-                      value: dropDrCrContr.selectedValue,
-                      items: const [
-                        DropdownMenuItem(
-                          value: "-",
-                          child: Text("debit"),
-                        ),
-                        DropdownMenuItem(
-                          value: "+",
-                          child: Text("credit"),
-                        )
-                      ],
-                      onChanged: (String? newValue) {
-                        dropDrCrContr.selectedValue = newValue;
-                      },
-                    );
-                  },
-                ),
+              Row(
+                children: [
+                  Text("Debit(-) or Credit(+) :"),
+                  dropDownMenu(dropDrCrContr, {"+": "Credit", "-": "Debit"})
+                ],
               ),
-              ChangeNotifierProvider<DropContr>(
-                create: (_) => dropContr,
-                child: Consumer<DropContr>(
-                  builder: (context, dropContr, child) {
-                    return DropdownButton<String>(
-                      value: dropContr.selectedValue,
-                      hint: Text('Select label'),
-                      items: labelsMetadata
-                          .map((e) => DropdownMenuItem(
-                                value: e.id,
-                                child: Text(e.labelName),
-                              ))
-                          .toList(),
-                      onChanged: (String? newValue) {
-                        dropContr.selectedValue = newValue;
-                      },
-                    );
-                  },
-                ),
+              Row(
+                children: [
+                  Text("Select Account :"),
+                  dropDownMenu(dropAccountContr, {
+                    for (var label in labelsMetadata)
+                      if (label.isAccount) label.id: label.labelName
+                  }),
+                ],
+              ),
+              Row(
+                children: [
+                  Text("Select Label :"),
+                  dropDownMenu(dropLabelContr, {
+                    for (var label in labelsMetadata)
+                      if (!label.isAccount) label.id: label.labelName
+                  }),
+                ],
               ),
             ],
           ),
@@ -175,7 +158,11 @@ class _TransactionsPageState extends State<TransactionsPage> {
                     showToast('Invalid amount');
                     return;
                   }
-                  if (dropContr.selectedValue == null) {
+                  if (dropAccountContr.selectedValue == null) {
+                    showToast('No Account selected');
+                    return;
+                  }
+                  if (dropLabelContr.selectedValue == null) {
                     showToast('No label selected');
                     return;
                   }
@@ -183,7 +170,8 @@ class _TransactionsPageState extends State<TransactionsPage> {
                     commentController.text,
                     double.parse(
                         dropDrCrContr.selectedValue! + amountController.text),
-                    dropContr.selectedValue!,
+                    dropAccountContr.selectedValue!,
+                    dropLabelContr.selectedValue!,
                   );
                   await fetchTransactions();
                   Navigator.of(context).pop();
@@ -232,17 +220,17 @@ class _TransactionsPageState extends State<TransactionsPage> {
   }
 
   Future<void> _editTransactionLabel(String transactionId) async {
-    final DropContr dropContr =
-        DropContr(labelsMetadata.firstWhere((e) => e.isDefault).id);
+    final DropController dropContr =
+        DropController(labelsMetadata.firstWhere((e) => e.isDefault).id);
 
     await showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
           title: Text('Edit Transaction Label'),
-          content: ChangeNotifierProvider<DropContr>(
+          content: ChangeNotifierProvider<DropController>(
             create: (_) => dropContr,
-            child: Consumer<DropContr>(
+            child: Consumer<DropController>(
               builder: (context, dropContr, child) {
                 return DropdownButton<String>(
                   value: dropContr.selectedValue,

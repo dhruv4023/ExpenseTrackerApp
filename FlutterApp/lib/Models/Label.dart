@@ -2,12 +2,14 @@ class Label {
   final String id;
   final String labelName;
   final bool isDefault;
+  final bool isAccount;
   final Map<String, Map<String, double>> monthlyData;
 
   Label({
     required this.id,
     required this.labelName,
     required this.isDefault,
+    required this.isAccount,
     required this.monthlyData,
   });
 
@@ -17,6 +19,7 @@ class Label {
       id: map['_id'] as String,
       labelName: map['label_name'] as String,
       isDefault: map['default'] as bool,
+      isAccount: map['isAccount'] as bool,
       monthlyData: {
         'jan': Map<String, double>.from(map['jan']),
         'feb': Map<String, double>.from(map['feb']),
@@ -40,6 +43,7 @@ class Label {
       '_id': id,
       'label_name': labelName,
       'default': isDefault,
+      'isAccount': isAccount,
       'jan': monthlyData['jan'],
       'feb': monthlyData['feb'],
       'mar': monthlyData['mar'],
@@ -56,10 +60,10 @@ class Label {
   }
 
   // Method to calculate the total Dr and Cr
-  Map<String, double> calculateTotalDrCr() {
+  Map<String, dynamic> calculateTotalDrCr() {
     double totalDr = 0;
     double totalCr = 0;
-
+    
     monthlyData.forEach((month, data) {
       totalDr += data['dr'] ?? 0;
       totalCr += data['cr'] ?? 0;
@@ -73,10 +77,5 @@ class Label {
       'total_cr': totalCr,
       "overall": double.parse((totalCr - totalDr).toStringAsFixed(2)),
     };
-  }
-
-  @override
-  String toString() {
-    return 'Label{id: $id, labelName: $labelName, isDefault: $isDefault, monthlyData: $monthlyData}';
   }
 }

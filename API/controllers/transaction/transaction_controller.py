@@ -18,10 +18,12 @@ async def add_transaction(req: Request, token: str = Depends(verify_token)):
         body = await req.json()
         comment = body.get("comment")
         amt = body.get("amt")
+        accountId = body.get("accountId")
         labelId = body.get("labelId")
-        if addNewTransaction(token["username"], comment, float(amt), labelId):
+        if addNewTransaction(token["username"], comment, float(amt),accountId, labelId):
             return ResponseHandler.success(2001)
     except Exception as e:
+        print(e)
         return ResponseHandler.error(9999, e)
 
 

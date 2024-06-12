@@ -7,11 +7,12 @@ class TransactionService {
   static String baseUrl = "$API_URL/transaction";
 
   static Future<void> addTransaction(
-      String comment, double amount, String labelId) async {
+      String comment, double amount, String accountId, String labelId) async {
     final url = Uri.parse('$baseUrl/add');
     final payload = jsonEncode({
       "comment": comment,
       "amt": amount,
+      "accountId": accountId,
       "labelId": labelId,
     });
     final headers = {

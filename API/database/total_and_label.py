@@ -24,8 +24,11 @@ def addNewTotalLabelDoc(UID: str, session):
         _id = UID + "_" + str(datetime.now().date())[:4]
         doc = {"_id": _id, "labels": []}
         totalAndLabel.insert_one(doc, session=session)
-        res = addLabel(UID, "default", labelId="0", default=True, session=session)
-        if res:
+        res = addLabel(
+            UID, "Pocket", labelId="0", default=True, isAccount=True, session=session
+        )
+        res2 = addLabel(UID, "Other", labelId="1", default=True, session=session)
+        if res and res2:
             return True
         else:
             raise Exception("Failed to add default label")
@@ -35,11 +38,21 @@ def addNewTotalLabelDoc(UID: str, session):
 
 # to add new Label object in TotalAndLabel Document
 def addLabel(
-    UID: str, labelName: str, labelId=str(getUniqueId()), default=False, session=None
+    UID: str,
+    labelName: str,
+    isAccount=False,
+    default=False,
+    labelId=str(getUniqueId()),
+    session=None,
 ):
     try:
         _id = UID + "_" + str(datetime.now().date())[:4]
-        doc = {"_id": labelId, "label_name": labelName, "default": default}
+        doc = {
+            "_id": labelId,
+            "label_name": labelName,
+            "default": default,
+            "isAccount": isAccount,
+        }
         doc = generateArrayOfMonthlyTotal(doc)
         validate_document(doc, schema=label_schema)
         res = totalAndLabel.update_one(
@@ -58,13 +71,13 @@ def deleteLabel(walletId: str, labelId: str, session=None):
     try:
         query = {"_id": walletId}
         if labelId == "0":
-            raise Exception("You can't delete the default label")
+            raise Exception("You can't delete the default label or account")
         args = {"labels": {"$elemMatch": {"_id": labelId}}}
         labelData = totalAndLabel.find_one(query, args, session=session)["labels"][0]
         for i in MONTHS:
             if labelData[i]["dr"] != 0 or labelData[i]["cr"] != 0:
                 raise Exception(
-                    "Some transactions are marked with this label. Please remove them and try again."
+                    "Some transactions are marked with this label or account. Please remove them and try again."
                 )
         x = totalAndLabel.update_one(
             {"_id": walletId}, {"$pull": {"labels": {"_id": labelId}}}, session=session
@@ -72,9 +85,9 @@ def deleteLabel(walletId: str, labelId: str, session=None):
         if x.modified_count != 0:
             return True
         else:
-            raise Exception("Failed to delete label")
+            raise Exception("Failed to delete label or account")
     except Exception as e:
-        raise Exception("Failed to delete label: " + str(e))
+        raise Exception("Failed to delete label or account: " + str(e))
 
 
 # to set Label object as default in TotalAndLabel Document
@@ -94,9 +107,9 @@ def setDefaultLabel(walletId: str, labelId: str, oldDefaultLabelId: str, session
         if x.modified_count != 0:
             return True
         else:
-            raise Exception("Failed to set default label")
+            raise Exception("Failed to set default label or account")
     except Exception as e:
-        raise Exception("Failed to set default label: " + str(e))
+        raise Exception("Failed to set default label or account: " + str(e))
 
 
 # to edit Label name in object of label in TotalAndLabel Document
@@ -108,41 +121,55 @@ def editLabelName(walletId: str, labelId: str, newLabelName: str, session=None):
         if x.modified_count != 0:
             return True
         else:
-            raise Exception("Failed to edit label name")
+            raise Exception("Failed to edit label or account name ")
     except Exception as e:
-        raise Exception("Failed to edit label name: " + str(e))
+        raise Exception("Failed to edit label or account name: " + str(e))
 
 
 def getLabels(walletId: str, session=None):
     try:
         return totalAndLabel.find_one({"_id": walletId}, session=session)["labels"]
     except Exception as e:
-        raise Exception("Failed to retrieve labels: " + str(e))
+        raise Exception("Failed to retrieve or account labels: " + str(e))
 
 
 def getAllLabelsNameAndIdOnly(walletId: str, session=None):
     try:
         return totalAndLabel.find_one(
             {"_id": walletId},
-            {"labels._id": 1, "labels.label_name": 1, "labels.default": 1},
+            {
+                "labels._id": 1,
+                "labels.label_name": 1,
+                "labels.default": 1,
+                "labels.isAccount": 1,
+            },
             session=session,
         )["labels"]
     except Exception as e:
-        raise Exception("Failed to retrieve labels: " + str(e))
+        raise Exception("Failed to retrieve labels or account: " + str(e))
 
 
 # increment total while adding new transaction
 def incrementInTotalCollection(walletId: str, transactionData: dict, session):
     try:
         amt = transactionData["amt"]
+        accountId = transactionData["account_id"]
         labelId = transactionData["label_id"]
         mm = int(transactionData["dateTime"][4:6])
         label = "dr" if amt < 0 else "cr"
 
-        query = {"_id": walletId, "labels._id": labelId}
-        inc_field = {"labels.$." + MONTHS[mm - 1] + "." + label: abs(amt)}
+        query = {"_id": walletId, "labels._id": {"$in": [labelId, accountId]}}
 
-        x = totalAndLabel.update_one(query, {"$inc": inc_field}, session=session)
+        update = {
+            "$inc": {
+                f"labels.$[label]." + MONTHS[mm - 1] + "." + label: (abs(amt)),
+            }
+        }
+        array_filters = [{"label._id": {"$in": [labelId, accountId]}}]
+
+        x = totalAndLabel.update_one(
+            query, update, array_filters=array_filters, session=session
+        )
         if x.modified_count != 0:
             return True
         else:

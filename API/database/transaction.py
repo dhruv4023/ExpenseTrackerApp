@@ -14,6 +14,7 @@ def addNewTransaction(
     userId: str,
     comment: str,
     amt: float,
+    accountId: str,
     labelId: str,
     dateTime: str = getDateTimeUniqueNumber(),
 ):
@@ -26,7 +27,8 @@ def addNewTransaction(
         "_id": str(transactionId),
         "dateTime": dateTime,
         "comment": comment,
-        "label_id": labelId if labelId else getDefaultLabelId(walletId),
+        "account_id": accountId if accountId else getDefaultLabelId(walletId),
+        "label_id": labelId if labelId else "No Label",
         "amt": amt,
     }
 

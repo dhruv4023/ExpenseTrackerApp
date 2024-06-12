@@ -48,31 +48,36 @@ class TnxWidget extends StatelessWidget {
                   color: Theme.of(context).canvasColor,
                   child: Row(
                     children: [
-                      Expanded(
-                        child: Text('Label',
+                      const Expanded(
+                        child: Text('Account',
                             style: TextStyle(fontWeight: FontWeight.bold)),
                       ),
-                      Expanded(
+                      const Expanded(
                         child: Text('Amount',
                             style: TextStyle(fontWeight: FontWeight.bold)),
                       ),
                       if (isLargeScreen)
-                        Expanded(
+                        const Expanded(
+                          child: Text('Label',
+                              style: TextStyle(fontWeight: FontWeight.bold)),
+                        ),
+                      if (isLargeScreen)
+                        const Expanded(
                           child: Text('DateTime',
                               style: TextStyle(fontWeight: FontWeight.bold)),
                         ),
                       if (isLargeScreen)
-                        Expanded(
+                        const Expanded(
                           child: Text('Comment',
                               style: TextStyle(fontWeight: FontWeight.bold)),
                         ),
                       if (isLargeScreen)
-                        Expanded(
+                        const Expanded(
                           child: Text('Actions',
                               style: TextStyle(fontWeight: FontWeight.bold)),
                         ),
                       if (!isLargeScreen)
-                        Expanded(
+                        const Expanded(
                           child: Text('Details',
                               style: TextStyle(fontWeight: FontWeight.bold)),
                         ),
@@ -86,8 +91,12 @@ class TnxWidget extends StatelessWidget {
                 (BuildContext context, int index) {
                   return Column(
                     children: [
-                      Divider(),
+                      const Divider(),
                       TransactionRow(
+                        accountName: labelsMetadata
+                            .firstWhere(
+                                (e) => e.id == transactions[index].accountId)
+                            .labelName,
                         labelName: labelsMetadata
                             .firstWhere(
                                 (e) => e.id == transactions[index].labelId)
