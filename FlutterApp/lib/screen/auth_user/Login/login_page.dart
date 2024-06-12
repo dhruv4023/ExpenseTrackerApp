@@ -97,7 +97,7 @@ class _LoginPageState extends State<LoginPage> {
     setState(() {
       _isLoading = true; // Start loading indicator
       errorMessage = "";
-    }); 
+    });
     try {
       final loginResponse = await http.post(
         Uri.parse('$API_URL/auth/login'),
@@ -125,9 +125,11 @@ class _LoginPageState extends State<LoginPage> {
     } catch (e) {
       showToast('Login Exception: $e');
     } finally {
-      setState(() {
-        _isLoading = false; // stop loading indicator
-      });
+      if (mounted) {
+        setState(() {
+          _isLoading = false; // stop loading indicator
+        });
+      }
     }
   }
 

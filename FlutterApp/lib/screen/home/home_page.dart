@@ -24,14 +24,14 @@ class _HomePageState extends State<HomePage> {
       id: '1',
       dateTime: '2024-05-26 14:00',
       comment: 'Groceries',
-      labelId: 'label1',
+      labelIds: ['label1'],
       amt: 100,
     ),
     Transaction(
       id: '2',
       dateTime: '2024-05-27 16:00',
       comment: 'Rent',
-      labelId: 'label2',
+      labelIds: ['label2'],
       amt: 500,
     ),
     // Add more transactions here

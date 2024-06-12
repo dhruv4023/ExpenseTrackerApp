@@ -135,18 +135,24 @@ def getAllLabelsNameAndIdOnly(walletId: str, session=None):
 def incrementInTotalCollection(walletId: str, transactionData: dict, session):
     try:
         amt = transactionData["amt"]
-        labelId = transactionData["label_id"]
+        labelIds = transactionData["label_ids"]
         mm = int(transactionData["dateTime"][4:6])
         label = "dr" if amt < 0 else "cr"
 
-        query = {"_id": walletId, "labels._id": labelId}
-        inc_field = {"labels.$." + MONTHS[mm - 1] + "." + label: abs(amt)}
+        query = {"_id": walletId, "labels._id": {"$in": labelIds}}
 
-        x = totalAndLabel.update_one(query, {"$inc": inc_field}, session=session)
+        update = {"$inc": {f"labels.$[label].{MONTHS[mm - 1]}.{label}": abs(amt)}}
+
+        array_filters = [{"label._id": {"$in": labelIds}}]
+
+        x = totalAndLabel.update_one(
+            query, update, array_filters=array_filters, session=session
+        )
+
         if x.modified_count != 0:
             return True
         else:
-            raise Exception("Failed to increment total")
+            raise Exception("Failed to increment total for any label_id")
     except Exception as e:
         raise Exception("Failed to increment total: " + str(e))
 
@@ -154,47 +160,69 @@ def incrementInTotalCollection(walletId: str, transactionData: dict, session):
 # decrement total while deleting a transaction
 def decrementInTotalCollection(walletId: str, transactionData: dict, session):
     try:
+        print(transactionData)
         amt = transactionData["amt"]
-        labelId = transactionData["label_id"]
+        labelIds = transactionData["label_ids"]
         mm = int(transactionData["dateTime"][4:6])
         label = "dr" if amt < 0 else "cr"
+        print(labelIds)
+        query = {"_id": walletId, "labels._id": {"$in": labelIds}}
 
-        query = {"_id": walletId, "labels._id": labelId}
-        dec_field = {"labels.$." + MONTHS[mm - 1] + "." + label: -(abs(amt))}
+        update = {"$inc": {f"labels.$[label].{MONTHS[mm - 1]}.{label}": -abs(amt)}}
 
-        x = totalAndLabel.update_one(query, {"$inc": dec_field}, session=session)
+        array_filters = [{"label._id": {"$in": labelIds}}]
+
+        x = totalAndLabel.update_one(
+            query, update, array_filters=array_filters, session=session
+        )
         if x.modified_count != 0:
             return True
         else:
-            raise Exception("Failed to decrement total")
+            raise Exception("Failed to decrement total for any label")
     except Exception as e:
         raise Exception("Failed to decrement total: " + str(e))
 
 
 # change total while changing label of a transaction
 def decreamentAndIncrement(
-    walletId: str, newLabelId: str, transactionData: dict, session
+    walletId: str, newLabelIds: list, transactionData: dict, session
 ):
     try:
-        if newLabelId not in getistOfLabelIds(walletId):
-            raise Exception("Label not exist")
+        # Validate newLabelIds
+        if not all(labelId in getistOfLabelIds(walletId) for labelId in newLabelIds):
+            raise Exception("One or more labels do not exist")
+
         amt = transactionData["amt"]
-        oldLabelId = transactionData["label_id"]
+        oldLabelIds = transactionData["label_ids"]
         mm = int((transactionData["dateTime"][4:6]))
         label = "dr" if amt < 0 else "cr"
-        query = {"_id": walletId, "labels._id": {"$in": [newLabelId, oldLabelId]}}
+
+        newLabelIds_unique, oldLabelIds_unique = [    x for x in newLabelIds if x not in oldLabelIds], [x for x in oldLabelIds if x not in newLabelIds]
+        print(newLabelIds_unique, oldLabelIds_unique)
+        if  list(set(newLabelIds_unique + oldLabelIds_unique)) is []:
+            return True
+        
+        query = {
+            "_id": walletId,
+            "labels._id": {"$in":  list(set(newLabelIds_unique + oldLabelIds_unique))},
+        }
+
         update = {
             "$inc": {
-                f"labels.$[old]." + MONTHS[mm - 1] + "." + label: -(abs(amt)),
-                f"labels.$[new]." + MONTHS[mm - 1] + "." + label: (abs(amt)),
-            }
+                f"labels.$[old].{MONTHS[mm - 1]}.{label}": -abs(amt),
+                f"labels.$[new].{MONTHS[mm - 1]}.{label}": abs(amt),
+            },
         }
-        array_filters = [{"old._id": oldLabelId}, {"new._id": newLabelId}]
+
+        array_filters = [
+            {"old._id": {"$in": oldLabelIds_unique}},
+            {"new._id": {"$in": newLabelIds_unique}},
+        ]
 
         x = totalAndLabel.update_one(
             query, update, array_filters=array_filters, session=session
         )
-
+        print(x.modified_count )
         if x.modified_count != 0:
             return True
         else:

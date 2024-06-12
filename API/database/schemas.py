@@ -11,7 +11,7 @@ transaction_schema = {
     "_id": str,
     "dateTime": str,
     "comment": str,
-    "label_id": str,
+    "label_ids": list,
     "amt": float,
 }
 

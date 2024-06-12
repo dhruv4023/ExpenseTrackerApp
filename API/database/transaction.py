@@ -14,7 +14,7 @@ def addNewTransaction(
     userId: str,
     comment: str,
     amt: float,
-    labelId: str,
+    labelIds: list,
     dateTime: str = getDateTimeUniqueNumber(),
 ):
     # Generate transaction ID and method ID
@@ -26,10 +26,10 @@ def addNewTransaction(
         "_id": str(transactionId),
         "dateTime": dateTime,
         "comment": comment,
-        "label_id": labelId if labelId else getDefaultLabelId(walletId),
+        "label_ids": labelIds if labelIds else [getDefaultLabelId(walletId)],
         "amt": amt,
     }
-
+    print(labelIds)
     validate_document(document=doc, schema=transaction_schema)
 
     with db_client.start_session() as session:
@@ -78,28 +78,35 @@ def editTransactionsComment(walletId: str, transactionId: str, comment: str):
         LOG.debug(f"Error editing comment in transaction: {e}")
         raise Exception(f"Error editing comment in transaction: {e}")
 
-
-# to edit label in a transaction
-def changelableTransactions(walletId: str, newLabelId: str, transactionId: str):
+## ERROR
+def changelableTransactions(walletId: str, newLabelIds: list, transactionId: str):
     try:
         transactionData = getTransactionById(walletId, transactionId)
-        if transactionData["label_id"] == newLabelId:
+
+        if set(transactionData["label_ids"]) == set(newLabelIds):
             return True
+        print(walletId, transactionId)
         query = {
             "_id": walletId,
             "transactions._id": transactionId,
         }
-        update = {"$set": {"transactions.$.label_id": newLabelId}}
+        update = {"$set": {"transactions.$.label_ids": newLabelIds}}
+        print(list(totalAndLabel.find(query)))
         with db_client.start_session() as session:
-            decreamentAndIncrement(
-                walletId,
-                newLabelId,
-                transactionData,
-                session,
-            )
+            with session.start_transaction():
+                # res=decreamentAndIncrement(
+                #     walletId,
+                #     newLabelIds,
+                #     transactionData,
+                #     session,
+                # )
+                # print(res,update)
+                result = totalAndLabel.update_one(query, update, session=session)
+                print(result.modified_count, result.matched_count)
+                # if result.modified_count == 0:
+                #     raise Exception(f"Error changing label in transaction")
 
-            if updateOne(query, update, session=session) == 0:
-                raise Exception(f"Error changing label in transaction")
+                session.commit_transaction()
             return True
     except Exception as e:
         LOG.debug(f"Error changing label in transaction: {e}")

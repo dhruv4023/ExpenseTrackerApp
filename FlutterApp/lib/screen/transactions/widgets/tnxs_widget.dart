@@ -22,6 +22,7 @@ class TnxWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // print(transactions);
     return Container(
       height: 500,
       padding: EdgeInsets.all(10.0),
@@ -88,10 +89,12 @@ class TnxWidget extends StatelessWidget {
                     children: [
                       Divider(),
                       TransactionRow(
-                        labelName: labelsMetadata
-                            .firstWhere(
-                                (e) => e.id == transactions[index].labelId)
-                            .labelName,
+                        labelName: transactions[index]
+                            .labelIds
+                            .map((labelId) => labelsMetadata
+                                .firstWhere((e) => e.id == labelId)
+                                .labelName)
+                            .join(', '),
                         transaction: transactions[index],
                         isLargeScreen: isLargeScreen,
                         onEditTransactionComment: onEditTransactionComment,

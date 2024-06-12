@@ -18,9 +18,12 @@ async def add_transaction(req: Request, token: str = Depends(verify_token)):
         body = await req.json()
         comment = body.get("comment")
         amt = body.get("amt")
-        labelId = body.get("labelId")
-        if addNewTransaction(token["username"], comment, float(amt), labelId):
+        labelIds = body.get("labelIds")
+        if addNewTransaction(token["username"], comment, float(amt), labelIds):
             return ResponseHandler.success(2001)
+        else:
+            return ResponseHandler.success(2002)
+
     except Exception as e:
         return ResponseHandler.error(9999, e)
 
@@ -65,8 +68,8 @@ async def edit_label(
         if walletId[:-5] != token["username"]:
             return ResponseHandler.error(5001, None, 403)
         body = await req.json()
-        newLabelId = body.get("newLabelId")
-        if changelableTransactions(walletId, newLabelId, transactionId):
+        newLabelIds = body.get("newLabelIds")
+        if changelableTransactions(walletId, newLabelIds, transactionId):
             return ResponseHandler.success(2007)
         else:
             return ResponseHandler.error(2008)

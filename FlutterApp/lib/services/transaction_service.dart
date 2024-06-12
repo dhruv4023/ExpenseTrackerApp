@@ -7,12 +7,12 @@ class TransactionService {
   static String baseUrl = "$API_URL/transaction";
 
   static Future<void> addTransaction(
-      String comment, double amount, String labelId) async {
+      String comment, double amount, List<String> labelIds) async {
     final url = Uri.parse('$baseUrl/add');
     final payload = jsonEncode({
       "comment": comment,
       "amt": amount,
-      "labelId": labelId,
+      "labelIds": labelIds,
     });
     final headers = {
       'Authorization': await retriveToken(),
@@ -46,13 +46,13 @@ class TransactionService {
     }
   }
 
-  static Future<void> editTransactionLabel(
-      String transactionId, String newLabelId) async {
+  static Future<void> editTransactionLabels(
+      String transactionId, List<String> newLabelIds) async {
     String? walletId = await retriveWalletId();
     final url =
         Uri.parse('$baseUrl/$transactionId/edit/labelname/wallet/$walletId');
     final payload = jsonEncode({
-      "newLabelId": newLabelId,
+      "newLabelIds": newLabelIds,
     });
     final headers = {
       'Authorization': await retriveToken(),

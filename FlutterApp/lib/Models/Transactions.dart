@@ -2,14 +2,14 @@ class Transaction {
   final String id;
   final String dateTime;
   final String comment;
-  final String labelId;
+  final List<String> labelIds; // Changed to List<String>
   final double amt;
 
   Transaction({
     required this.id,
     required this.dateTime,
     required this.comment,
-    required this.labelId,
+    required this.labelIds, // Changed to List<String>
     required this.amt,
   });
 
@@ -18,7 +18,8 @@ class Transaction {
       id: json['_id'],
       dateTime: json['dateTime'],
       comment: json['comment'],
-      labelId: json['label_id'],
+      labelIds:
+          List<String>.from(json['label_ids']), // Parsing the list of label IDs
       amt: json['amt'],
     );
   }
