@@ -13,7 +13,7 @@ jobs:
       uses: nateraw/huggingface-sync-action@v0.0.4
       with:
         path: API/
-        github_repo_id: dhruv4023/ExpenseTrackerApp/
+        github_repo_id: dhruv4023/ExpenseTrackerApp
         huggingface_repo_id: dhruv4023/appServer
         repo_type: space
         space_sdk: docker
