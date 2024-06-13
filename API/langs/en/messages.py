@@ -1,6 +1,7 @@
 MESSAGES = {
     # wallet
     1001: "wallet added successfully",
+    1002: "wallet retrived successfully",
     # Transaction
     2001: "Transaction added successfully",
     2002: "Failed to add transaction",

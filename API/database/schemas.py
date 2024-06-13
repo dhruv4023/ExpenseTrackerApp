@@ -3,6 +3,7 @@ wallet_schema = {
     "_id": str,
     "title": str,
     "year": str,
+    "username": str,
     "transactions": list,
     "started_on": str,
 }

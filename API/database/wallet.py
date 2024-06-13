@@ -1,6 +1,7 @@
 from database.main import *
 from database.total_and_label import addNewTotalLabelDoc
 
+
 # Function to create a new wallet document
 def createWallet(userName: str, methodName: str, yyyy: str = None):
     if yyyy is None:
@@ -14,6 +15,7 @@ def createWallet(userName: str, methodName: str, yyyy: str = None):
         "_id": _id,
         "title": methodName,
         "year": yyyy,
+        "username": userName,
         "transactions": [],
         "started_on": str(datetime.now()),
     }
@@ -30,9 +32,9 @@ def createWallet(userName: str, methodName: str, yyyy: str = None):
                 wallets.insert_one(wallet_doc, session=session)
 
                 # Add new total and label document
-                if(not addNewTotalLabelDoc(userName, session=session)):
+                if not addNewTotalLabelDoc(userName, session=session):
                     raise Exception("An error occurred")
- 
+
                 # Commit the transaction
                 session.commit_transaction()
                 return True
@@ -40,3 +42,16 @@ def createWallet(userName: str, methodName: str, yyyy: str = None):
                 # Abort the transaction on error
                 session.abort_transaction()
                 return False
+
+
+def getWallets(userName: str):
+    return list(
+        wallets.find(
+            {"username": userName},
+            {
+                "_id": 1,
+                "title": 1,
+                "year": 1,
+            },
+        )
+    )

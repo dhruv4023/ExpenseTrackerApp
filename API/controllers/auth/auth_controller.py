@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Response, Request, UploadFile
+from fastapi import APIRouter, Request, UploadFile
 from appConfig import ENV_VAR
 from helpers.response import ResponseHandler
 from helpers.send_request import sendRequest
@@ -39,7 +39,7 @@ async def get_user_names():
 @router.post("/login")
 async def login_control(req: dict):
     try:
-        response = sendRequest(f"{AUTH_API_END}/api/v1/auth/login/", "post", req)
+        response = sendRequest(f"{AUTH_API_END}/api/v1/auth/login/", "post", req)            
         return ResponseHandler.success_mediator(response)
     except Exception as e:
         return ResponseHandler.error(9999, e)
