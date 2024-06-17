@@ -71,6 +71,7 @@ class TransactionService {
     String? walletId = await retriveWalletId();
     final url = Uri.parse('$baseUrl/$transactionId/delete/wallet/$walletId');
     final headers = {
+      'Content-Type': 'application/json; charset=UTF-8',
       'Authorization': await retriveToken(),
     };
 

@@ -9,7 +9,7 @@ class LabelList extends StatelessWidget {
   final int? expandedIndex, subExpandedIndex;
   final void Function(int, {bool subExpansion}) onExpansionChanged;
   final Function(String) onEditLabelName;
-  final Function(String) onSetDefaultLabel;
+  final Function(String, bool) onSetDefaultLabel;
 
   LabelList({
     required this.labels,
@@ -136,7 +136,7 @@ class LabelList extends StatelessWidget {
                       onPressed: label.isDefault
                           ? null
                           : () {
-                              onSetDefaultLabel(label.id);
+                              onSetDefaultLabel(label.id, label.isAccount);
                             },
                     ),
                   ],

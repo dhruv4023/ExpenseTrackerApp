@@ -34,4 +34,11 @@ async def home():
 import uvicorn
 
 if __name__ == "__main__":
-    uvicorn.run("main:app", host="0.0.0.0", port=5000, reload=ENV_VAR.DEBUG)
+    uvicorn.run(
+        "main:app",
+        host="localhost",
+        port=5000,
+        reload=ENV_VAR.DEBUG,
+        # ssl_certfile=".//API//ssl//server-cert.pem",
+        # ssl_keyfile=".//API//ssl//server-key.pem",
+    )

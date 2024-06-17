@@ -10,6 +10,7 @@ class LabelService {
 
   static Future<void> addLabel(String labelName, bool isAccount) async {
     final url = Uri.parse('$baseUrl/add/');
+    print(labelName);
     final payload =
         jsonEncode({"labelName": labelName, "isAccount": isAccount});
     final headers = {
@@ -20,7 +21,9 @@ class LabelService {
     final response = await http.post(url, headers: headers, body: payload);
     if (response.statusCode != 200) {
       Map<String, dynamic> responseData = jsonDecode(response.body);
-      throw Exception('${responseData["message"]}');
+      
+      print('my error 2: $responseData["message"]');
+      throw Exception('Error: ${responseData["message"]}');
     }
   }
 
@@ -46,6 +49,7 @@ class LabelService {
         '$baseUrl/set/default/$labelId/wallet/${await retriveWalletId()}/oldDefaultLabel/$oldDefaultLabel');
     final headers = {
       'Authorization': await retriveToken(),
+      'Content-Type': 'application/json; charset=UTF-8',
     };
 
     final response = await http.put(url, headers: headers);

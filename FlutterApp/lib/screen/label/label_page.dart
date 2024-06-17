@@ -36,24 +36,32 @@ class _LabelsPageState extends State<LabelsPage> {
   Future<void> fetchLabels() async {
     final url = '$API_URL/label/get/wallet/${await retriveWalletId()}';
     try {
+      setState(() {
+        isLoading = true; // Start loading indicator
+      });
+
       final response = await http.get(
         Uri.parse(url),
-        headers: {'Authorization': await retriveToken()},
+        headers: {
+          'Authorization': await retriveToken(),
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
       );
+
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         setState(() {
           labels = (data['data']['labels'] as List)
               .map((item) => Label.fromMap(item))
               .toList();
-          isLoading = false;
+          isLoading = false; // Stop loading indicator
         });
       } else {
         throw Exception('Failed to load labels: ${response.statusCode}');
       }
     } catch (e) {
       setState(() {
-        isLoading = false;
+        isLoading = false; // Stop loading indicator
       });
       showToast('Error fetching labels: $e');
     }
@@ -81,44 +89,59 @@ class _LabelsPageState extends State<LabelsPage> {
   Future<void> _addLabel() async {
     final labelNameController = TextEditingController();
     bool isAccount = false;
+
     await showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
           title: Text('Add New Label / Account'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: labelNameController,
-                decoration:
-                    InputDecoration(hintText: "Enter label/account name"),
-              ),
-              Row(
+          content: StatefulBuilder(
+            builder: (BuildContext context, StateSetter setState) {
+              return Column(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  Checkbox(
-                    value: isAccount,
-                    onChanged: (newValue) {
-                      setState(() {
-                        isAccount = newValue!;
-                      });
-                    },
+                  TextField(
+                    controller: labelNameController,
+                    decoration: InputDecoration(
+                      hintText: "Enter label/account name",
+                    ),
                   ),
-                  Text('Is Account'),
+                  Row(
+                    children: [
+                      Checkbox(
+                        checkColor: const Color.fromARGB(255, 5, 5, 4),
+                        value: isAccount,
+                        onChanged: (bool? newValue) {
+                          setState(() {
+                            isAccount = newValue ?? false;
+                          });
+                        },
+                      ),
+                      const Text('Is Account'),
+                    ],
+                  ),
                 ],
-              ),
-            ],
+              );
+            },
           ),
           actions: [
             TextButton(
               onPressed: () async {
                 try {
-                  await LabelService.addLabel(
-                      labelNameController.text, isAccount);
+                  final labelName = labelNameController.text.trim();
+                  if (labelName.isEmpty) {
+                    showToast("Label name cannot be empty");
+                    return;
+                  }
+                  showToast("1");
+                  await LabelService.addLabel(labelName, isAccount);
+                  showToast("2");
                   await fetchLabels();
+                  showToast("3");
                   Navigator.of(context).pop();
                 } catch (e) {
-                  showToast(e.toString());
+                  print("my error: " + e.toString());
+                  showToast("my error 1: " + e.toString());
                 }
               },
               child: Text('Add'),
@@ -150,7 +173,7 @@ class _LabelsPageState extends State<LabelsPage> {
                   await fetchLabels();
                   Navigator.of(context).pop();
                 } catch (e) {
-                  showToast(e.toString());
+                  showToast("error: " + e.toString());
                 }
               },
               child: Text('Edit'),
@@ -161,9 +184,12 @@ class _LabelsPageState extends State<LabelsPage> {
     );
   }
 
-  Future<void> _setDefaultLabel(String labelId) async {
-    String oldDefaultLabel =
-        labels.firstWhere((element) => element.isDefault).id;
+  Future<void> _setDefaultLabel(String labelId, bool isAccount) async {
+    String oldDefaultLabel = labels
+        .firstWhere((element) =>
+            element.isDefault && (!element.isAccount || element.isAccount))
+        .id;
+
     try {
       await LabelService.setDefaultLabel(labelId, oldDefaultLabel);
       await fetchLabels();

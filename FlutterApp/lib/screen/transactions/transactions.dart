@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'package:expense_tracker/functions/show_toast.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
 import 'package:expense_tracker/Models/Transactions.dart';
 import 'package:expense_tracker/Models/LabelMetaData.dart';
@@ -39,14 +38,18 @@ class _TransactionsPageState extends State<TransactionsPage> {
 
   Future<void> fetchTransactions({int page = 1}) async {
     String? walletId = await retriveWalletId();
-
+    // print(await retriveToken());
+    // print(await retriveWalletId());
     setState(() {
       isLoading = true;
     });
 
     final url = Uri.parse(
         '$API_URL/transaction/get/wallet/$walletId?page=$page&limit=10');
-    final headers = {'Authorization': await retriveToken()};
+    final headers = {
+      'Authorization': await retriveToken(),
+      'Content-Type': 'application/json; charset=UTF-8',
+    };
 
     try {
       final response = await http.get(url, headers: headers);
@@ -152,6 +155,10 @@ class _TransactionsPageState extends State<TransactionsPage> {
           actions: [
             TextButton(
               onPressed: () async {
+                setState(() {
+                  isLoading = true;
+                });
+
                 try {
                   final amount = double.tryParse(amountController.text);
                   if (amount == null) {
@@ -177,6 +184,10 @@ class _TransactionsPageState extends State<TransactionsPage> {
                   Navigator.of(context).pop();
                 } catch (e) {
                   showToast(e.toString());
+                } finally {
+                  setState(() {
+                    isLoading = false;
+                  });
                 }
               },
               child: Text('Add'),
@@ -194,14 +205,18 @@ class _TransactionsPageState extends State<TransactionsPage> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text('Edit Transaction Comment'),
+          title: const Text('Edit Transaction Comment'),
           content: TextField(
             controller: newCommentController,
-            decoration: InputDecoration(hintText: "Enter new comment"),
+            decoration: const InputDecoration(hintText: "Enter new comment"),
           ),
           actions: [
             TextButton(
               onPressed: () async {
+                setState(() {
+                  isLoading = true;
+                });
+
                 try {
                   await TransactionService.editTransactionComment(
                       walletId, newCommentController.text);
@@ -209,9 +224,13 @@ class _TransactionsPageState extends State<TransactionsPage> {
                   Navigator.of(context).pop();
                 } catch (e) {
                   showToast(e.toString());
+                } finally {
+                  setState(() {
+                    isLoading = false;
+                  });
                 }
               },
-              child: Text('Edit'),
+              child: const Text('Edit'),
             ),
           ],
         );
@@ -220,37 +239,35 @@ class _TransactionsPageState extends State<TransactionsPage> {
   }
 
   Future<void> _editTransactionLabel(String transactionId) async {
-    final DropController dropContr =
-        DropController(labelsMetadata.firstWhere((e) => e.isDefault).id);
+    final DropController dropContr = DropController(
+        labelsMetadata.firstWhere((e) => e.isDefault && !e.isAccount).id);
 
     await showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text('Edit Transaction Label'),
-          content: ChangeNotifierProvider<DropController>(
-            create: (_) => dropContr,
-            child: Consumer<DropController>(
-              builder: (context, dropContr, child) {
-                return DropdownButton<String>(
-                  value: dropContr.selectedValue,
-                  hint: Text('Select new label'),
-                  items: labelsMetadata
-                      .map((e) => DropdownMenuItem(
-                            child: Text(e.labelName),
-                            value: e.id,
-                          ))
-                      .toList(),
-                  onChanged: (String? newValue) {
-                    dropContr.selectedValue = newValue;
-                  },
-                );
-              },
-            ),
+          title: const Text('Add New Transaction'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
+                children: [
+                  Text("Select Label :"),
+                  dropDownMenu(dropContr, {
+                    for (var label in labelsMetadata)
+                      if (!label.isAccount) label.id: label.labelName
+                  }),
+                ],
+              ),
+            ],
           ),
           actions: [
             TextButton(
               onPressed: () async {
+                setState(() {
+                  isLoading = true;
+                });
+
                 try {
                   await TransactionService.editTransactionLabel(
                       transactionId, dropContr.selectedValue ?? '');
@@ -258,6 +275,10 @@ class _TransactionsPageState extends State<TransactionsPage> {
                   Navigator.of(context).pop();
                 } catch (e) {
                   showToast(e.toString());
+                } finally {
+                  setState(() {
+                    isLoading = false;
+                  });
                 }
               },
               child: Text('Edit'),
@@ -278,12 +299,20 @@ class _TransactionsPageState extends State<TransactionsPage> {
           actions: [
             TextButton(
               onPressed: () async {
+                setState(() {
+                  isLoading = true;
+                });
+
                 try {
                   await TransactionService.deleteTransaction(walletId);
                   await fetchTransactions();
                   Navigator.of(context).pop();
                 } catch (e) {
                   showToast(e.toString());
+                } finally {
+                  setState(() {
+                    isLoading = false;
+                  });
                 }
               },
               child: Text('Delete'),

@@ -23,7 +23,7 @@ MESSAGES = {
     5002: "Access denied - Unauthorized",
     5003: "Your session expired! Please log in again",
     # General messages
-    9000: "chatbot api server is running...",
+    9000: "api server is running...",
     9999: "Internal Server Error",
 }
 

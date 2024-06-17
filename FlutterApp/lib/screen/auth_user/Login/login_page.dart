@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:expense_tracker/functions/auth_shared_preference.dart';
 import 'package:http_parser/http_parser.dart';
@@ -69,11 +70,11 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Future<void> saveUserToSharedPreferences(Map<String, dynamic> user) async {
-    saveUser(user);
+    await saveUser(user);
   }
 
   Future<void> saveTokenToSharedPreferences(String token) async {
-    saveToken(token);
+    await saveToken(token);
   }
 
   String? _validateRequired(String? value, String fieldName) {
@@ -94,41 +95,49 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Future<void> _tmp_login() async {
-    setState(() {
-      _isLoading = true; // Start loading indicator
-      errorMessage = "";
-    });
-    try {
-      final loginResponse = await http.post(
-        Uri.parse('$API_URL/auth/login'),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-        },
-        body: jsonEncode({
-          'uid': "dhruv40123",
-          'password': "123Tes",
-        }),
-      );
+    print(API_URL);
+    if (API_URL.contains("localhost")) {
+      setState(() {
+        _isLoading = true; // Start loading indicator
+        errorMessage = "";
+      });
+      try {
+        final loginResponse = await http.post(
+          Uri.parse('$API_URL/auth/login'),
+          headers: <String, String>{
+            'Content-Type': 'application/json',
+          },
+          body: jsonEncode({
+            'uid': "dhruv40123",
+            'password': "123Tes",
+          }),
+        );
 
-      if (loginResponse.statusCode == 200) {
-        Map<String, dynamic> loginResponseData = jsonDecode(loginResponse.body);
+        if (loginResponse.statusCode == 200) {
+          Map<String, dynamic> loginResponseData =
+              jsonDecode(loginResponse.body);
 
-        await saveTokenToSharedPreferences(loginResponseData['data']['token']);
-        await saveUserToSharedPreferences(loginResponseData['data']['user']);
-        Navigator.of(context).pushReplacementNamed('/home');
-      } else {
-        Map<String, dynamic> loginResponseData = jsonDecode(loginResponse.body);
-        setState(() {
-          errorMessage = loginResponseData['message'];
-        });
-      }
-    } catch (e) {
-      showToast('Login Exception: $e');
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isLoading = false; // stop loading indicator
-        });
+          await saveTokenToSharedPreferences(
+              loginResponseData['data']['token']);
+          await saveUserToSharedPreferences(loginResponseData['data']['user']);
+
+          Navigator.of(context).pushReplacementNamed('/wait');
+        } else {
+          Map<String, dynamic> loginResponseData =
+              jsonDecode(loginResponse.body);
+          setState(() {
+            errorMessage = loginResponseData['message'];
+          });
+        }
+      } catch (e) {
+        print('Login Exception: $e');
+        showToast('Login Exception: $e error!!!!!');
+      } finally {
+        if (mounted) {
+          setState(() {
+            _isLoading = false; // stop loading indicator
+          });
+        }
       }
     }
   }
@@ -159,7 +168,7 @@ class _LoginPageState extends State<LoginPage> {
 
           String loginJsonData = jsonEncode(loginData);
 
-          String loginApiUrl = API_URL + '/auth/login';
+          String loginApiUrl = '$API_URL/auth/login';
 
           try {
             final loginResponse = await http.post(
@@ -178,7 +187,7 @@ class _LoginPageState extends State<LoginPage> {
                   loginResponseData['data']['token']);
               await saveUserToSharedPreferences(
                   loginResponseData['data']['user']);
-              Navigator.of(context).pushReplacementNamed('/home');
+              Navigator.of(context).pushReplacementNamed('/wait');
             } else {
               Map<String, dynamic> loginResponseData =
                   jsonDecode(loginResponse.body);
@@ -187,6 +196,7 @@ class _LoginPageState extends State<LoginPage> {
               });
             }
           } catch (e) {
+            print(e);
             showToast('Login Exception: $e');
           }
         } else {
@@ -509,16 +519,17 @@ class _LoginPageState extends State<LoginPage> {
                   ),
 
                   //  ----------------------------------------------------------------------------//
-                  ElevatedButton(
-                    onPressed: _isLoading ? null : _tmp_login,
-                    style: ElevatedButton.styleFrom(
-                      textStyle: const TextStyle(color: Colors.white),
-                      backgroundColor: _isLoading
-                          ? Colors.grey
-                          : Colors.blue, // Change color when disabled
+                  if (API_URL.contains("localhost:"))
+                    ElevatedButton(
+                      onPressed: _isLoading ? null : _tmp_login,
+                      style: ElevatedButton.styleFrom(
+                        textStyle: const TextStyle(color: Colors.white),
+                        backgroundColor: _isLoading
+                            ? Colors.grey
+                            : Colors.blue, // Change color when disabled
+                      ),
+                      child: const Text('Tmp Login'),
                     ),
-                    child: const Text('Tmp Login'),
-                  ),
                   //  ----------------------------------------------------------------------------//
                   const SizedBox(height: 20),
                   if (_authForm != UPDATE)

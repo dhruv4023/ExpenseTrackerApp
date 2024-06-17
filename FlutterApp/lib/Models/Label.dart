@@ -13,27 +13,42 @@ class Label {
     required this.monthlyData,
   });
 
+  // Utility function to ensure values are converted to double
+  static double toDouble(dynamic value) {
+    if (value is int) {
+      return value.toDouble();
+    } else if (value is double) {
+      return value;
+    } else {
+      throw ArgumentError('Invalid type for dr or cr value');
+    }
+  }
+
   // Factory constructor to create a Label from a map
   factory Label.fromMap(Map<String, dynamic> map) {
+    Map<String, Map<String, double>> processMonthlyData(Map<String, dynamic> map) {
+      return {
+        'jan': map['jan'] != null ? map['jan'].map<String, double>((key, value) => MapEntry(key as String, toDouble(value))) : {},
+        'feb': map['feb'] != null ? map['feb'].map<String, double>((key, value) => MapEntry(key as String, toDouble(value))) : {},
+        'mar': map['mar'] != null ? map['mar'].map<String, double>((key, value) => MapEntry(key as String, toDouble(value))) : {},
+        'apr': map['apr'] != null ? map['apr'].map<String, double>((key, value) => MapEntry(key as String, toDouble(value))) : {},
+        'may': map['may'] != null ? map['may'].map<String, double>((key, value) => MapEntry(key as String, toDouble(value))) : {},
+        'jun': map['jun'] != null ? map['jun'].map<String, double>((key, value) => MapEntry(key as String, toDouble(value))) : {},
+        'jul': map['jul'] != null ? map['jul'].map<String, double>((key, value) => MapEntry(key as String, toDouble(value))) : {},
+        'aug': map['aug'] != null ? map['aug'].map<String, double>((key, value) => MapEntry(key as String, toDouble(value))) : {},
+        'sep': map['sep'] != null ? map['sep'].map<String, double>((key, value) => MapEntry(key as String, toDouble(value))) : {},
+        'oct': map['oct'] != null ? map['oct'].map<String, double>((key, value) => MapEntry(key as String, toDouble(value))) : {},
+        'nov': map['nov'] != null ? map['nov'].map<String, double>((key, value) => MapEntry(key as String, toDouble(value))) : {},
+        'dec': map['dec'] != null ? map['dec'].map<String, double>((key, value) => MapEntry(key as String, toDouble(value))) : {},
+      };
+    }
+
     return Label(
       id: map['_id'] as String,
       labelName: map['label_name'] as String,
       isDefault: map['default'] as bool,
       isAccount: map['isAccount'] as bool,
-      monthlyData: {
-        'jan': Map<String, double>.from(map['jan']),
-        'feb': Map<String, double>.from(map['feb']),
-        'mar': Map<String, double>.from(map['mar']),
-        'apr': Map<String, double>.from(map['apr']),
-        'may': Map<String, double>.from(map['may']),
-        'jun': Map<String, double>.from(map['jun']),
-        'jul': Map<String, double>.from(map['jul']),
-        'aug': Map<String, double>.from(map['aug']),
-        'sep': Map<String, double>.from(map['sep']),
-        'oct': Map<String, double>.from(map['oct']),
-        'nov': Map<String, double>.from(map['nov']),
-        'dec': Map<String, double>.from(map['dec']),
-      },
+      monthlyData: processMonthlyData(map),
     );
   }
 
@@ -60,10 +75,10 @@ class Label {
   }
 
   // Method to calculate the total Dr and Cr
-  Map<String, dynamic> calculateTotalDrCr() {
+  Map<String, double> calculateTotalDrCr() {
     double totalDr = 0;
     double totalCr = 0;
-    
+
     monthlyData.forEach((month, data) {
       totalDr += data['dr'] ?? 0;
       totalCr += data['cr'] ?? 0;
@@ -75,7 +90,7 @@ class Label {
     return {
       'total_dr': totalDr,
       'total_cr': totalCr,
-      "overall": double.parse((totalCr - totalDr).toStringAsFixed(2)),
+      'overall': double.parse((totalCr - totalDr).toStringAsFixed(2)),
     };
   }
 }

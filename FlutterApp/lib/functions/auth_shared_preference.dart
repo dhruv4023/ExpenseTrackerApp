@@ -3,12 +3,12 @@ import 'dart:async';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
-void saveToken(String token) async {
+Future<void> saveToken(String token) async {
   final SharedPreferences prefs = await SharedPreferences.getInstance();
   await prefs.setString('token', token);
 }
 
-void saveWalletId(String walletId) async {
+Future<void> saveWalletId(String walletId) async {
   final SharedPreferences prefs = await SharedPreferences.getInstance();
   await prefs.setString(
       'wallet_id', walletId); // Save wallet ID to SharedPreferences
@@ -20,7 +20,7 @@ Future<String> retriveToken() async {
   return 'Bearer $token';
 }
 
-void saveUser(Map<String, dynamic> user) async {
+Future<void> saveUser(Map<String, dynamic> user) async {
   final SharedPreferences prefs = await SharedPreferences.getInstance();
 
   await prefs.setString('user', jsonEncode(user));

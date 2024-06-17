@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'dart:async';
+
 import 'package:expense_tracker/screen/auth_user/Login/login_page.dart';
 import 'package:expense_tracker/widgets/custom_app_bar.dart';
 import 'package:expense_tracker/widgets/bottom_nav_bar.dart';
@@ -25,6 +27,7 @@ class _HomePageState extends State<HomePage> {
   List<Wallet> wallets = [];
   bool walletForCurrentYearExists = false;
   String? selectedWalletId;
+
   @override
   void initState() {
     super.initState();
@@ -38,8 +41,13 @@ class _HomePageState extends State<HomePage> {
       setState(() {
         isAuthenticated = true;
       });
-      selectedWalletId = await retriveWalletId();
       await fetchWallets();
+      selectedWalletId = await retriveWalletId();
+      // print(selectedWalletId);
+
+      setState(() {
+        selectedWalletId = selectedWalletId;
+      }); // Update state to reflect the retrieved wallet ID
     }
   }
 
@@ -48,12 +56,14 @@ class _HomePageState extends State<HomePage> {
       isLoading = true;
     });
 
-    final url = Uri.parse('$API_URL/wallet/get/');
-    final headers = {'Authorization': await retriveToken()};
+    final url = Uri.parse('$API_URL/wallet/get');
+    final headers = {
+      'Authorization': await retriveToken(),
+      'Content-Type': 'application/json; charset=UTF-8',
+    };
 
     try {
       final response = await http.get(url, headers: headers);
-
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = json.decode(response.body);
         final List<dynamic> walletsData = data['data']["wallets"];
@@ -62,13 +72,13 @@ class _HomePageState extends State<HomePage> {
           walletForCurrentYearExists = wallets
               .any((wallet) => wallet.year == DateTime.now().year.toString());
           isLoading = false;
+          if (walletForCurrentYearExists) {
+            _onWalletTapped(wallets
+                .firstWhere(
+                    (element) => element.year == DateTime.now().year.toString())
+                .id);
+          }
         });
-        if (walletForCurrentYearExists) {
-          _onWalletTapped(wallets
-              .firstWhere(
-                  (element) => element.year == DateTime.now().year.toString())
-              .id);
-        }
       } else {
         showToast('Failed to load wallets');
         setState(() {
@@ -112,7 +122,10 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _onWalletTapped(String walletId) async {
-    saveWalletId(walletId);
+    await saveWalletId(walletId);
+    setState(() {
+      selectedWalletId = walletId;
+    });
   }
 
   @override
@@ -121,9 +134,11 @@ class _HomePageState extends State<HomePage> {
       appBar: isAuthenticated
           ? CustomAppBar(isAuthenticated: isAuthenticated)
           : null,
-      body: isAuthenticated
-          ? _homeContent()
-          : LoginPage(), // Redirect to authentication page if not authenticated
+      body: !isAuthenticated
+          ? LoginPage() // Redirect to authentication page if not authenticated
+          :isLoading
+          ? Center(child: CircularProgressIndicator())
+           :_homeContent(),
       bottomNavigationBar: isAuthenticated
           ? BottomNavBar(
               selectedIndex: _selectedIndex,

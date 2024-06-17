@@ -4,9 +4,9 @@ import jwt
 
 async def verify_token(authorization: str = Header(None)):
     try:
+        # print(authorization)
         if not authorization or not authorization.startswith("Bearer "):
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Token not provided or invalid")
-        
         token = authorization.split("Bearer ")[1]
 
         try:

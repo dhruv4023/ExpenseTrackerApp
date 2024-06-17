@@ -26,7 +26,8 @@ class MyApp extends StatelessWidget {
         '/home': (context) => const HomePage(),
         '/profile': (context) => const ProfilePage(),
         '/transactions': (context) => const TransactionsPage(),
-        '/labels': (context) => const LabelsPage()
+        '/labels': (context) => const LabelsPage(),
+        '/wait': (context) => const SplashScreen(),
       },
     );
   }
