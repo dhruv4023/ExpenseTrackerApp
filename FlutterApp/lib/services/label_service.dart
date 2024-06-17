@@ -9,8 +9,8 @@ class LabelService {
   static String baseUrl = "$API_URL/label";
 
   static Future<void> addLabel(String labelName, bool isAccount) async {
-    final url = Uri.parse('$baseUrl/add/');
-    print(labelName);
+    final url = Uri.parse('$baseUrl/add');
+    
     final payload =
         jsonEncode({"labelName": labelName, "isAccount": isAccount});
     final headers = {
@@ -22,7 +22,6 @@ class LabelService {
     if (response.statusCode != 200) {
       Map<String, dynamic> responseData = jsonDecode(response.body);
       
-      print('my error 2: $responseData["message"]');
       throw Exception('Error: ${responseData["message"]}');
     }
   }

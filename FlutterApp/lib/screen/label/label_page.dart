@@ -34,11 +34,11 @@ class _LabelsPageState extends State<LabelsPage> {
   }
 
   Future<void> fetchLabels() async {
-    final url = '$API_URL/label/get/wallet/${await retriveWalletId()}';
     try {
       setState(() {
         isLoading = true; // Start loading indicator
       });
+      final url = '$API_URL/label/get/wallet/${await retriveWalletId()}';
 
       final response = await http.get(
         Uri.parse(url),
@@ -60,10 +60,11 @@ class _LabelsPageState extends State<LabelsPage> {
         throw Exception('Failed to load labels: ${response.statusCode}');
       }
     } catch (e) {
+      showToast('Error fetching labels: $e');
+    } finally {
       setState(() {
         isLoading = false; // Stop loading indicator
       });
-      showToast('Error fetching labels: $e');
     }
   }
 
@@ -128,23 +129,26 @@ class _LabelsPageState extends State<LabelsPage> {
             TextButton(
               onPressed: () async {
                 try {
+                  setState(() {
+                    isLoading = true; // Start loading indicator
+                  });
                   final labelName = labelNameController.text.trim();
                   if (labelName.isEmpty) {
                     showToast("Label name cannot be empty");
                     return;
                   }
-                  showToast("1");
                   await LabelService.addLabel(labelName, isAccount);
-                  showToast("2");
                   await fetchLabels();
-                  showToast("3");
                   Navigator.of(context).pop();
                 } catch (e) {
-                  print("my error: " + e.toString());
-                  showToast("my error 1: " + e.toString());
+                  showToast(e.toString());
+                } finally {
+                  setState(() {
+                    isLoading = false; // Stop loading indicator
+                  });
                 }
               },
-              child: Text('Add'),
+              child: const Text('Add'),
             ),
           ],
         );
@@ -168,12 +172,19 @@ class _LabelsPageState extends State<LabelsPage> {
             TextButton(
               onPressed: () async {
                 try {
+                  setState(() {
+                    isLoading = true; // start loading indicator
+                  });
                   await LabelService.editLabelName(
                       labelId, newLabelNameController.text);
                   await fetchLabels();
                   Navigator.of(context).pop();
                 } catch (e) {
                   showToast("error: " + e.toString());
+                } finally {
+                  setState(() {
+                    isLoading = false; // Stop loading indicator
+                  });
                 }
               },
               child: Text('Edit'),
