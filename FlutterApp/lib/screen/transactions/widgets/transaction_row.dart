@@ -92,6 +92,9 @@ class _TransactionRowState extends State<TransactionRow> {
             child: Column(
               children: [
                 ListTile(
+                  title: Text('Label: ${widget.labelName}'),
+                ),
+                ListTile(
                   title: Text('DateTime: ${widget.transaction.dateTime}'),
                 ),
                 ListTile(

@@ -36,6 +36,18 @@ class _TransactionsPageState extends State<TransactionsPage> {
     fetchTransactions();
   }
 
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+    switches(index, context);
+  }
+
+  void setPage(page) {
+    currentPage = page;
+    fetchTransactions(page: currentPage);
+  }
+
   Future<void> fetchTransactions({int page = 1}) async {
     String? walletId = await retriveWalletId();
     // print(await retriveToken());
@@ -88,18 +100,6 @@ class _TransactionsPageState extends State<TransactionsPage> {
     }
   }
 
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-    switches(index, context);
-  }
-
-  void setPage(page) {
-    currentPage = page;
-    fetchTransactions(page: currentPage);
-  }
-
   Future<void> _addTransaction() async {
     final commentController = TextEditingController();
     final amountController = TextEditingController();
@@ -112,87 +112,169 @@ class _TransactionsPageState extends State<TransactionsPage> {
     await showDialog(
       context: context,
       builder: (context) {
-        return AlertDialog(
-          title: const Text('Add New Transaction'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: commentController,
-                decoration: const InputDecoration(hintText: "Enter comment"),
-              ),
-              TextField(
-                controller: amountController,
-                decoration: const InputDecoration(hintText: "Enter amount"),
-                keyboardType: TextInputType.number,
-              ),
-              Row(
-                children: [
-                  Text("Debit(-) or Credit(+) :"),
-                  dropDownMenu(dropDrCrContr, {"+": "Credit", "-": "Debit"})
-                ],
-              ),
-              Row(
-                children: [
-                  Text("Select Account :"),
-                  dropDownMenu(dropAccountContr, {
-                    for (var label in labelsMetadata)
-                      if (label.isAccount) label.id: label.labelName
-                  }),
-                ],
-              ),
-              Row(
-                children: [
-                  Text("Select Label :"),
-                  dropDownMenu(dropLabelContr, {
-                    for (var label in labelsMetadata)
-                      if (!label.isAccount) label.id: label.labelName
-                  }),
-                ],
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () async {
-                setState(() {
-                  isLoading = true;
-                });
+        bool isLoadingInsideDialog = false;
 
-                try {
-                  final amount = double.tryParse(amountController.text);
-                  if (amount == null) {
-                    showToast('Invalid amount');
-                    return;
-                  }
-                  if (dropAccountContr.selectedValue == null) {
-                    showToast('No Account selected');
-                    return;
-                  }
-                  if (dropLabelContr.selectedValue == null) {
-                    showToast('No label selected');
-                    return;
-                  }
-                  await TransactionService.addTransaction(
-                    commentController.text,
-                    double.parse(
-                        dropDrCrContr.selectedValue! + amountController.text),
-                    dropAccountContr.selectedValue!,
-                    dropLabelContr.selectedValue!,
-                  );
-                  await fetchTransactions();
-                  Navigator.of(context).pop();
-                } catch (e) {
-                  showToast(e.toString());
-                } finally {
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+            Future<void> handleAdd() async {
+              setState(() {
+                isLoadingInsideDialog = true;
+              });
+
+              try {
+                final amount = double.tryParse(amountController.text);
+                if (amount == null) {
+                  showToast('Invalid amount');
                   setState(() {
-                    isLoading = false;
+                    isLoadingInsideDialog = false;
                   });
+                  return;
                 }
-              },
-              child: Text('Add'),
-            ),
-          ],
+                if (dropAccountContr.selectedValue == null) {
+                  showToast('No Account selected');
+                  setState(() {
+                    isLoadingInsideDialog = false;
+                  });
+                  return;
+                }
+                if (dropLabelContr.selectedValue == null) {
+                  showToast('No label selected');
+                  setState(() {
+                    isLoadingInsideDialog = false;
+                  });
+                  return;
+                }
+                await TransactionService.addTransaction(
+                  commentController.text,
+                  double.parse(
+                      dropDrCrContr.selectedValue! + amountController.text),
+                  dropAccountContr.selectedValue!,
+                  dropLabelContr.selectedValue!,
+                );
+                await fetchTransactions();
+                Navigator.of(context).pop();
+              } catch (e) {
+                showToast(e.toString());
+                setState(() {
+                  isLoadingInsideDialog = false;
+                });
+              }
+            }
+
+            return AlertDialog(
+              title: const Text('Add New Transaction'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (isLoadingInsideDialog) CircularProgressIndicator(),
+                  if (!isLoadingInsideDialog) ...[
+                    TextField(
+                      controller: commentController,
+                      decoration:
+                          const InputDecoration(hintText: "Enter comment"),
+                    ),
+                    TextField(
+                      controller: amountController,
+                      decoration:
+                          const InputDecoration(hintText: "Enter amount"),
+                      keyboardType: TextInputType.number,
+                    ),
+                    Row(
+                      children: [
+                        Text("Debit(-) or Credit(+) :"),
+                        dropDownMenu(
+                            dropDrCrContr, {"+": "Credit", "-": "Debit"})
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        Text("Select Account :"),
+                        dropDownMenu(dropAccountContr, {
+                          for (var label in labelsMetadata)
+                            if (label.isAccount) label.id: label.labelName
+                        }),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        Text("Select Label :"),
+                        dropDownMenu(dropLabelContr, {
+                          for (var label in labelsMetadata)
+                            if (!label.isAccount) label.id: label.labelName
+                        }),
+                      ],
+                    ),
+                  ],
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: isLoadingInsideDialog ? null : handleAdd,
+                  child: const Text('Add'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Future<void> _editTransactionLabel(String transactionId) async {
+    final DropController dropContr = DropController(
+        labelsMetadata.firstWhere((e) => e.isDefault && !e.isAccount).id);
+
+    bool isLoadingInsideDialog = false;
+    await showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+            Future<void> handleEdit() async {
+              setState(() {
+                isLoadingInsideDialog = true;
+              });
+
+              try {
+                await TransactionService.editTransactionLabel(
+                    transactionId, dropContr.selectedValue ?? '');
+                await fetchTransactions();
+                Navigator.of(context).pop();
+              } catch (e) {
+                showToast(e.toString());
+              } finally {
+                setState(() {
+                  isLoadingInsideDialog = false;
+                });
+              }
+            }
+
+            return AlertDialog(
+              title: const Text('Edit Transaction Label'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (isLoadingInsideDialog) CircularProgressIndicator(),
+                  if (!isLoadingInsideDialog)
+                    Row(
+                      children: [
+                        Text("Select Label :"),
+                        dropDownMenu(dropContr, {
+                          for (var label in labelsMetadata)
+                            if (!label.isAccount) label.id: label.labelName
+                        }),
+                      ],
+                    ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: isLoadingInsideDialog ? null : handleEdit,
+                  child: const Text('Edit'),
+                ),
+              ],
+            );
+          },
         );
       },
     );
@@ -204,86 +286,51 @@ class _TransactionsPageState extends State<TransactionsPage> {
     await showDialog(
       context: context,
       builder: (context) {
-        return AlertDialog(
-          title: const Text('Edit Transaction Comment'),
-          content: TextField(
-            controller: newCommentController,
-            decoration: const InputDecoration(hintText: "Enter new comment"),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () async {
+        bool isLoadingInsideDialog = false;
+
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+            Future<void> handleEdit() async {
+              setState(() {
+                isLoadingInsideDialog = true;
+              });
+
+              try {
+                await TransactionService.editTransactionComment(
+                    walletId, newCommentController.text);
+                await fetchTransactions();
+                Navigator.of(context).pop();
+              } catch (e) {
+                showToast(e.toString());
+              } finally {
                 setState(() {
-                  isLoading = true;
+                  isLoadingInsideDialog = false;
                 });
+              }
+            }
 
-                try {
-                  await TransactionService.editTransactionComment(
-                      walletId, newCommentController.text);
-                  await fetchTransactions();
-                  Navigator.of(context).pop();
-                } catch (e) {
-                  showToast(e.toString());
-                } finally {
-                  setState(() {
-                    isLoading = false;
-                  });
-                }
-              },
-              child: const Text('Edit'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  Future<void> _editTransactionLabel(String transactionId) async {
-    final DropController dropContr = DropController(
-        labelsMetadata.firstWhere((e) => e.isDefault && !e.isAccount).id);
-
-    await showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Add New Transaction'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Row(
+            return AlertDialog(
+              title: const Text('Edit Transaction Comment'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text("Select Label :"),
-                  dropDownMenu(dropContr, {
-                    for (var label in labelsMetadata)
-                      if (!label.isAccount) label.id: label.labelName
-                  }),
+                  if (isLoadingInsideDialog) CircularProgressIndicator(),
+                  if (!isLoadingInsideDialog)
+                    TextField(
+                      controller: newCommentController,
+                      decoration:
+                          const InputDecoration(hintText: "Enter new comment"),
+                    ),
                 ],
               ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () async {
-                setState(() {
-                  isLoading = true;
-                });
-
-                try {
-                  await TransactionService.editTransactionLabel(
-                      transactionId, dropContr.selectedValue ?? '');
-                  await fetchTransactions();
-                  Navigator.of(context).pop();
-                } catch (e) {
-                  showToast(e.toString());
-                } finally {
-                  setState(() {
-                    isLoading = false;
-                  });
-                }
-              },
-              child: Text('Edit'),
-            ),
-          ],
+              actions: [
+                TextButton(
+                  onPressed: isLoadingInsideDialog ? null : handleEdit,
+                  child: const Text('Edit'),
+                ),
+              ],
+            );
+          },
         );
       },
     );
@@ -293,31 +340,46 @@ class _TransactionsPageState extends State<TransactionsPage> {
     await showDialog(
       context: context,
       builder: (context) {
-        return AlertDialog(
-          title: Text('Delete Transaction'),
-          content: Text('Are you sure you want to delete this transaction?'),
-          actions: [
-            TextButton(
-              onPressed: () async {
-                setState(() {
-                  isLoading = true;
-                });
+        bool isLoadingInsideDialog = false;
 
-                try {
-                  await TransactionService.deleteTransaction(walletId);
-                  await fetchTransactions();
-                  Navigator.of(context).pop();
-                } catch (e) {
-                  showToast(e.toString());
-                } finally {
-                  setState(() {
-                    isLoading = false;
-                  });
-                }
-              },
-              child: Text('Delete'),
-            ),
-          ],
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+            Future<void> handleDelete() async {
+              setState(() {
+                isLoadingInsideDialog = true;
+              });
+
+              try {
+                await TransactionService.deleteTransaction(walletId);
+                await fetchTransactions();
+                Navigator.of(context).pop();
+              } catch (e) {
+                showToast(e.toString());
+              } finally {
+                setState(() {
+                  isLoadingInsideDialog = false;
+                });
+              }
+            }
+
+            return AlertDialog(
+              title: const Text('Delete Transaction'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (isLoadingInsideDialog) CircularProgressIndicator(),
+                  if (!isLoadingInsideDialog)
+                    Text('Are you sure you want to delete this transaction?'),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: isLoadingInsideDialog ? null : handleDelete,
+                  child: const Text('Delete'),
+                ),
+              ],
+            );
+          },
         );
       },
     );
