@@ -167,7 +167,7 @@ class _LoginPageState extends State<LoginPage> {
           try {
             final loginResponse = await http.post(
               Uri.parse(loginApiUrl),
-              headers: <String, String>{
+              headers: {
                 'Content-Type': 'application/json; charset=UTF-8',
               },
               body: jsonEncode({

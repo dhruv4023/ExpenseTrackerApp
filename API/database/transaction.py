@@ -5,7 +5,7 @@ from database.total_and_label import (
     incrementInTotalCollection,
     decrementInTotalCollection,
     decreamentAndIncrement,
-    getDefaultLabelAndAccountId,
+    # getDefaultLabelAndAccountId,
     getAllLabelsNameAndIdOnly,
 )
 

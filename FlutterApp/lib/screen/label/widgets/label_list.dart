@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:expense_tracker/Models/Label.dart';
 
+// ignore: must_be_immutable
 class LabelList extends StatelessWidget {
   final List<Label> labels;
   final int? expandedIndex, subExpandedIndex;
@@ -20,6 +21,8 @@ class LabelList extends StatelessWidget {
     required this.onDeleteLabel, // Initialize delete callback
   });
 
+  double overallTotal = 0; // totalCr = 0, totalDr = 0;
+
   @override
   Widget build(BuildContext context) {
     return ExpansionPanelList(
@@ -29,9 +32,9 @@ class LabelList extends StatelessWidget {
       children: [
         ExpansionPanel(
           headerBuilder: (BuildContext context, bool isExpanded) {
-            return const ListTile(
+            return ListTile(
               title: Text(
-                'Total',
+                'Total overall:${overallTotal.toStringAsFixed(2)}',
                 style: const TextStyle(fontWeight: FontWeight.bold),
               ),
             );
@@ -185,10 +188,10 @@ class LabelList extends StatelessWidget {
         totalCr += label.monthlyData[monthKey]?['cr'] ?? 0;
       }
     }
-
     totalDr = double.parse(totalDr.toStringAsFixed(2));
     totalCr = double.parse(totalCr.toStringAsFixed(2));
 
+    overallTotal += totalCr - totalDr;
     return _buildCard(month, totalDr, totalCr);
   }
 
@@ -229,7 +232,7 @@ class LabelList extends StatelessWidget {
             style: const TextStyle(fontSize: 12.0),
           ),
           Text(
-            'OVERALL: ${totalCr - totalDr}',
+            'OVERALL: ${(totalCr - totalDr).toStringAsFixed(2)}',
             style: TextStyle(
                 fontSize: 12.0,
                 color: totalCr < totalDr ? Colors.red : Colors.green),
