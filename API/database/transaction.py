@@ -5,7 +5,7 @@ from database.total_and_label import (
     incrementInTotalCollection,
     decrementInTotalCollection,
     decreamentAndIncrement,
-    getDefaultLabelId,
+    getDefaultLabelAndAccountId,
     getAllLabelsNameAndIdOnly,
 )
 
@@ -22,13 +22,16 @@ def addNewTransaction(
     transactionId = getUniqueId()
     walletId = userId + "_" + dateTime[:4]
 
+    # defaltAccId, defaultLabelId = None, None
+    # if accountId is None or labelId is None:
+    #     defaltAccId, defaultLabelId = getDefaultLabelAndAccountId(walletId)
     # Create transaction document
     doc = {
         "_id": str(transactionId),
         "dateTime": dateTime,
         "comment": comment,
-        "account_id": accountId if accountId else getDefaultLabelId(walletId),
-        "label_id": labelId if labelId else "No Label",
+        "account_id": accountId,  # if accountId else defaltAccId,
+        "label_id": labelId,  # if labelId else defaultLabelId,
         "amt": amt,
     }
 

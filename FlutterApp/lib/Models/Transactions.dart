@@ -22,7 +22,7 @@ class Transaction {
       comment: json['comment'],
       accountId: json['account_id'],
       labelId: json['label_id'],
-      amt: json['amt'],
+      amt: (json['amt'] is int) ? (json['amt'] as int).toDouble() : json['amt'],
     );
   }
 }

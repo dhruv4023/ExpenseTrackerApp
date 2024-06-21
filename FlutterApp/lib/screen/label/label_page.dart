@@ -243,6 +243,37 @@ class _LabelsPageState extends State<LabelsPage> {
     );
   }
 
+  Future<void> _deleteLabel(String labelId) async {
+    try {
+      setState(() {
+        isLoading = true; // Start loading indicator
+      });
+
+      final url =
+          '$API_URL/label/delete/wallet/${await retriveWalletId()}/label/$labelId';
+      final headers = {
+        'Authorization': await retriveToken(),
+        'Content-Type': 'application/json; charset=UTF-8',
+      };
+
+      final response = await http.delete(Uri.parse(url), headers: headers);
+
+      if (response.statusCode == 200) {
+        await fetchLabels();
+        showToast('Label deleted successfully');
+      } else {
+        Map<String, dynamic> responseData = jsonDecode(response.body);
+        throw Exception('${responseData["error"]}');
+      }
+    } catch (e) {
+      showToast('Error deleting label: $e');
+    } finally {
+      setState(() {
+        isLoading = false; // Stop loading indicator
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -259,6 +290,7 @@ class _LabelsPageState extends State<LabelsPage> {
                 onExpansionChanged: _onExpansionChanged,
                 onEditLabelName: _editLabelName,
                 onSetDefaultLabel: _setDefaultLabel,
+                onDeleteLabel: _deleteLabel,
               ),
             ),
       bottomNavigationBar: isAuthenticated

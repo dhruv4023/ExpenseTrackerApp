@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:expense_tracker/Models/Transactions.dart';
 
 class TransactionRow extends StatefulWidget {
-  final String labelName,accountName;
+  final String accountName;
+  final String? labelName;
   final Transaction transaction;
   final bool isLargeScreen;
   final Function(String) onEditTransactionComment;
@@ -36,7 +37,10 @@ class _TransactionRowState extends State<TransactionRow> {
             Expanded(child: Text(widget.accountName)),
             Expanded(child: Text(widget.transaction.amt.toString())),
             if (widget.isLargeScreen)
-              Expanded(child: Text(widget.labelName)),
+              Expanded(
+                  child: Text(widget.labelName == null
+                      ? "No label"
+                      : widget.labelName!)),
             if (widget.isLargeScreen)
               Expanded(child: Text(widget.transaction.dateTime)),
             if (widget.isLargeScreen)

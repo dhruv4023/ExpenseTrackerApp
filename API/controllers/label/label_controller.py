@@ -70,7 +70,7 @@ async def get_labels(walletId: str, token: str = Depends(verify_token)):
         return ResponseHandler.error(9999, e)
 
 
-@router.delete("/deleteLabel/{walletId}/{labelId}")
+@router.delete("/delete/wallet/{walletId}/label/{labelId}")
 async def delete_label(walletId: str, labelId: str, token: str = Depends(verify_token)):
     try:
         if walletId[:-5] != token["username"]:

@@ -7,7 +7,7 @@ MONTHS = [
     "feb",
     "mar",
     "apr",
-    "may",
+    "may",  
     "jun",
     "jul",
     "aug",
@@ -241,13 +241,15 @@ def generateArrayOfMonthlyTotal(res):
     return res
 
 
-def getDefaultLabelId(walletId: str):
-    try:
-        return totalAndLabel.find_one(
-            {"_id": walletId, "labels.default": True}, {"labels.$": 1}
-        )["labels"][0]["_id"]
-    except Exception as e:
-        raise Exception("Failed to retrieve default label ID: " + str(e))
+# def getDefaultLabelAndAccountId(walletId: str):
+#     try:
+#         allLabelsAndAccount = totalAndLabel.find_one({"_id": walletId}, {"labels.$": 1})["labels"]
+#         return [la for la in allLabelsAndAccount if la["default"]]
+#     except Exception as e:
+#         raise Exception("Failed to retrieve default label ID: " + str(e))
+
+
+# print(list(getDefaultLabelAndAccountId("dhruv4023_2024")))
 
 
 def getistOfLabelIds(walletId: str):

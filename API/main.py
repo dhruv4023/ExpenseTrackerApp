@@ -28,8 +28,6 @@ from helpers.response import ResponseHandler
 @app.get("/")
 async def home():
     return ResponseHandler.success(message_code=9000)
-    # return {"status": response.status_code, "message": }
-
 
 import uvicorn
 

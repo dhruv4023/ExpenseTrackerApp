@@ -97,6 +97,7 @@ class _TransactionsPageState extends State<TransactionsPage> {
         isLoading = false;
       });
       showToast('Error: $e');
+      print('Error: $e');
     }
   }
 

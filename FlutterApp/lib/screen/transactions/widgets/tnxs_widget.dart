@@ -93,11 +93,13 @@ class TnxWidget extends StatelessWidget {
                     children: [
                       const Divider(),
                       TransactionRow(
-                        accountName: labelsMetadata
+                        accountName: //"no account",
+                        labelsMetadata
                             .firstWhere(
                                 (e) => e.id == transactions[index].accountId)
                             .labelName,
-                        labelName: labelsMetadata
+                        labelName: //"no label",
+                         labelsMetadata
                             .firstWhere(
                                 (e) => e.id == transactions[index].labelId)
                             .labelName,

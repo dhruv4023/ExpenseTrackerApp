@@ -1,5 +1,3 @@
-// lib/screen/label/widgets/label_list.dart
-
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:expense_tracker/Models/Label.dart';
@@ -10,6 +8,7 @@ class LabelList extends StatelessWidget {
   final void Function(int, {bool subExpansion}) onExpansionChanged;
   final Function(String) onEditLabelName;
   final Function(String, bool) onSetDefaultLabel;
+  final Function(String) onDeleteLabel; // Add delete callback
 
   LabelList({
     required this.labels,
@@ -18,6 +17,7 @@ class LabelList extends StatelessWidget {
     required this.onExpansionChanged,
     required this.onEditLabelName,
     required this.onSetDefaultLabel,
+    required this.onDeleteLabel, // Initialize delete callback
   });
 
   @override
@@ -138,6 +138,12 @@ class LabelList extends StatelessWidget {
                           : () {
                               onSetDefaultLabel(label.id, label.isAccount);
                             },
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.delete),
+                      onPressed: () {
+                        onDeleteLabel(label.id);
+                      },
                     ),
                   ],
                 ),

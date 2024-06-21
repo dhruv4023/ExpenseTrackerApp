@@ -110,6 +110,7 @@ class _LoginPageState extends State<LoginPage> {
           body: jsonEncode({
             'uid': "dhruv40123",
             'password': "123Tes",
+            "unlimitedTokenTime": true
           }),
         );
 
@@ -161,13 +162,6 @@ class _LoginPageState extends State<LoginPage> {
           String username = _usernameController.text;
           String password = _passwordController.text;
 
-          Map<String, String> loginData = {
-            'uid': username,
-            'password': password,
-          };
-
-          String loginJsonData = jsonEncode(loginData);
-
           String loginApiUrl = '$API_URL/auth/login';
 
           try {
@@ -176,7 +170,11 @@ class _LoginPageState extends State<LoginPage> {
               headers: <String, String>{
                 'Content-Type': 'application/json; charset=UTF-8',
               },
-              body: loginJsonData,
+              body: jsonEncode({
+                'uid': username,
+                'password': password,
+                "unlimitedTokenTime": true
+              }),
             );
 
             if (loginResponse.statusCode == 200) {
