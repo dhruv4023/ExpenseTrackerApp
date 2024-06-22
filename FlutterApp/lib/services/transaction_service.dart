@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:expense_tracker/functions/datetime.dart';
 import 'package:http/http.dart' as http;
 import 'package:expense_tracker/config/ENV_VARS.dart'; // Import config.dart
 import 'package:expense_tracker/functions/auth_shared_preference.dart';
@@ -14,6 +15,7 @@ class TransactionService {
       "amt": amount,
       "accountId": accountId,
       "labelId": labelId,
+      "dateTime": getCurrentDateTimeFormatted()
     });
     final headers = {
       'Authorization': await retriveToken(),

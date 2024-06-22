@@ -35,10 +35,13 @@ class _LabelsPageState extends State<LabelsPage> {
 
   Future<void> fetchLabels() async {
     try {
+      String? walletId = await retriveWalletId();
+      if (walletId == null) Navigator.of(context).pushReplacementNamed('/home');
+
       setState(() {
         isLoading = true; // Start loading indicator
       });
-      final url = '$API_URL/label/get/wallet/${await retriveWalletId()}';
+      final url = '$API_URL/label/get/wallet/${walletId}';
 
       final response = await http.get(
         Uri.parse(url),
@@ -90,9 +93,10 @@ class _LabelsPageState extends State<LabelsPage> {
   Future<void> _setDefaultLabel(String labelId, bool isAccount) async {
     try {
       String oldDefaultLabel = labels
-          .firstWhere((element) =>
-              element.isDefault && (!element.isAccount || element.isAccount))
+          .firstWhere(
+              (element) => element.isDefault && element.isAccount == isAccount)
           .id;
+
       setState(() {
         isLoading = true; // Start loading indicator
       });

@@ -9,10 +9,10 @@ def getDateTimeUniqueNumber():
 
     # Usage example
     current_datetime = get_ist_datetime()
-    formatted_date = time.strftime("%Y-%m-%d", current_datetime)
-    formatted_time = time.strftime("%H:%M:%S", current_datetime)
+    formatted_date = time.strftime("%Y%m%d", current_datetime)
+    formatted_time = time.strftime("%H%M%S", current_datetime)
 
-    return formatted_date.replace("-", "") + formatted_time.replace(":", "")
+    return formatted_date + formatted_time
 
 
 def getUniqueId():

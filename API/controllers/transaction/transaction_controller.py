@@ -20,7 +20,10 @@ async def add_transaction(req: Request, token: str = Depends(verify_token)):
         amt = body.get("amt")
         accountId = body.get("accountId")
         labelId = body.get("labelId")
-        if addNewTransaction(token["username"], comment, float(amt),accountId, labelId):
+        dateTime = body.get("dateTime")
+        if addNewTransaction(
+            token["username"], comment, float(amt), accountId, labelId, dateTime
+        ):
             return ResponseHandler.success(2001)
     except Exception as e:
         print(e)
@@ -34,7 +37,7 @@ async def delete_transaction(
     try:
         if walletId[:-5] != token["username"]:
             return ResponseHandler.error(5001, None, 403)
-        if deleteTransaction(walletId,  transactionId):
+        if deleteTransaction(walletId, transactionId):
             return ResponseHandler.success(2003)
         else:
             return ResponseHandler.error(2004)

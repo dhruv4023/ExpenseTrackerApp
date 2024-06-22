@@ -1,3 +1,4 @@
+import 'package:expense_tracker/functions/datetime.dart';
 import 'package:flutter/material.dart';
 import 'package:expense_tracker/Models/Transactions.dart';
 
@@ -34,21 +35,10 @@ class _TransactionRowState extends State<TransactionRow> {
       children: [
         Row(
           children: [
-            Expanded(child: Text(widget.accountName)),
-            Expanded(child: Text(widget.transaction.amt.toString())),
-            if (widget.isLargeScreen)
-              Expanded(
-                  child: Text(widget.labelName == null
-                      ? "No label"
-                      : widget.labelName!)),
-            if (widget.isLargeScreen)
-              Expanded(child: Text(widget.transaction.dateTime)),
-            if (widget.isLargeScreen)
-              Expanded(child: Text(widget.transaction.comment)),
             if (!widget.isLargeScreen)
               Expanded(
                 child: IconButton(
-                  icon: Icon(
+                  icon: Icon( 
                     _isExpanded ? Icons.arrow_drop_up : Icons.arrow_drop_down,
                   ),
                   onPressed: () {
@@ -60,6 +50,17 @@ class _TransactionRowState extends State<TransactionRow> {
                   },
                 ),
               ),
+            Expanded(child: Text(widget.accountName)),
+            Expanded(child: Text(widget.transaction.amt.toString())),
+            if (widget.isLargeScreen)
+              Expanded(
+                  child: Text(widget.labelName == null
+                      ? "No label"
+                      : widget.labelName!)),
+            if (widget.isLargeScreen)
+              Expanded(child: Text(formatDate(widget.transaction.dateTime))),
+            if (widget.isLargeScreen)
+              Expanded(child: Text(widget.transaction.comment)),
             if (widget.isLargeScreen)
               Expanded(
                 child: Row(
@@ -99,7 +100,7 @@ class _TransactionRowState extends State<TransactionRow> {
                   title: Text('Label: ${widget.labelName}'),
                 ),
                 ListTile(
-                  title: Text('DateTime: ${widget.transaction.dateTime}'),
+                  title: Text('DateTime: ${formatDate(widget.transaction.dateTime)}'),
                 ),
                 ListTile(
                   title: Text('Comment: ${widget.transaction.comment}'),

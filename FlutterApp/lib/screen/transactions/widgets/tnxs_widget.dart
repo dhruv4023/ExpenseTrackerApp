@@ -48,6 +48,11 @@ class TnxWidget extends StatelessWidget {
                   color: Theme.of(context).canvasColor,
                   child: Row(
                     children: [
+                      if (!isLargeScreen)
+                        const Expanded(
+                          child: Text('Details',
+                              style: TextStyle(fontWeight: FontWeight.bold)),
+                        ),
                       const Expanded(
                         child: Text('Account',
                             style: TextStyle(fontWeight: FontWeight.bold)),
@@ -56,31 +61,24 @@ class TnxWidget extends StatelessWidget {
                         child: Text('Amount',
                             style: TextStyle(fontWeight: FontWeight.bold)),
                       ),
-                      if (isLargeScreen)
+                      if (isLargeScreen) ...[
                         const Expanded(
                           child: Text('Label',
                               style: TextStyle(fontWeight: FontWeight.bold)),
                         ),
-                      if (isLargeScreen)
                         const Expanded(
                           child: Text('DateTime',
                               style: TextStyle(fontWeight: FontWeight.bold)),
                         ),
-                      if (isLargeScreen)
                         const Expanded(
                           child: Text('Comment',
                               style: TextStyle(fontWeight: FontWeight.bold)),
                         ),
-                      if (isLargeScreen)
                         const Expanded(
                           child: Text('Actions',
                               style: TextStyle(fontWeight: FontWeight.bold)),
                         ),
-                      if (!isLargeScreen)
-                        const Expanded(
-                          child: Text('Details',
-                              style: TextStyle(fontWeight: FontWeight.bold)),
-                        ),
+                      ]
                     ],
                   ),
                 ),
@@ -94,15 +92,15 @@ class TnxWidget extends StatelessWidget {
                       const Divider(),
                       TransactionRow(
                         accountName: //"no account",
-                        labelsMetadata
-                            .firstWhere(
-                                (e) => e.id == transactions[index].accountId)
-                            .labelName,
+                            labelsMetadata
+                                .firstWhere((e) =>
+                                    e.id == transactions[index].accountId)
+                                .labelName,
                         labelName: //"no label",
-                         labelsMetadata
-                            .firstWhere(
-                                (e) => e.id == transactions[index].labelId)
-                            .labelName,
+                            labelsMetadata
+                                .firstWhere(
+                                    (e) => e.id == transactions[index].labelId)
+                                .labelName,
                         transaction: transactions[index],
                         isLargeScreen: isLargeScreen,
                         onEditTransactionComment: onEditTransactionComment,

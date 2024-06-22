@@ -50,8 +50,7 @@ class _TransactionsPageState extends State<TransactionsPage> {
 
   Future<void> fetchTransactions({int page = 1}) async {
     String? walletId = await retriveWalletId();
-    // print(await retriveToken());
-    // print(await retriveWalletId());
+    if (walletId == null) Navigator.of(context).pushReplacementNamed('/home');
     setState(() {
       isLoading = true;
     });
