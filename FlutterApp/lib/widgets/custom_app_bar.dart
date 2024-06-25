@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 
-class CustomAppBar extends StatefulWidget implements PreferredSizeWidget {
+class MyAppBar extends StatefulWidget implements PreferredSizeWidget {
   final bool isAuthenticated;
 
-  CustomAppBar({required this.isAuthenticated});
+  MyAppBar({required this.isAuthenticated});
 
   @override
-  _CustomAppBarState createState() => _CustomAppBarState();
+  _MyAppBarState createState() => _MyAppBarState();
 
   @override
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 }
 
-class _CustomAppBarState extends State<CustomAppBar> {
+class _MyAppBarState extends State<MyAppBar> {
   bool _isSearching = false;
 
   void toggleSearch() {
@@ -24,6 +24,16 @@ class _CustomAppBarState extends State<CustomAppBar> {
   @override
   Widget build(BuildContext context) {
     return AppBar(
+      leading: Builder(
+        builder: (BuildContext context) {
+          return IconButton(
+            icon: Icon(Icons.menu),
+            onPressed: () {
+              Scaffold.of(context).openDrawer();
+            },
+          );
+        },
+      ),
       backgroundColor: Colors.grey,
       automaticallyImplyLeading: false,
       title:

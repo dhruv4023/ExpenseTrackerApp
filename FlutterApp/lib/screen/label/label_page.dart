@@ -5,9 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:expense_tracker/Models/Label.dart';
 import 'package:expense_tracker/config/ENV_VARS.dart'; // Import config.dart
-import 'package:expense_tracker/functions/switches.dart';
-import 'package:expense_tracker/widgets/bottom_nav_bar.dart'; // Import BottomNavBar
-import 'package:expense_tracker/widgets/custom_app_bar.dart';
+import 'package:expense_tracker/widgets/base_scaffold.dart';
 import 'package:expense_tracker/functions/auth_shared_preference.dart';
 import 'package:expense_tracker/screen/label/widgets/label_list.dart';
 import 'package:expense_tracker/services/label_service.dart';
@@ -21,8 +19,6 @@ class LabelsPage extends StatefulWidget {
 }
 
 class _LabelsPageState extends State<LabelsPage> {
-  bool isAuthenticated = true;
-  int _selectedIndex = 3;
   List<Label> labels = [];
   bool isLoading = true;
   int? _expandedIndex;
@@ -69,13 +65,6 @@ class _LabelsPageState extends State<LabelsPage> {
         isLoading = false; // Stop loading indicator
       });
     }
-  }
-
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-    switches(index, context);
   }
 
   void _onExpansionChanged(int index, {bool subExpansion = false}) {
@@ -280,40 +269,31 @@ class _LabelsPageState extends State<LabelsPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: isAuthenticated
-          ? CustomAppBar(isAuthenticated: isAuthenticated)
-          : null,
-      body: isLoading
-          ? Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
-              child: LabelList(
-                labels: labels,
-                expandedIndex: _expandedIndex,
-                subExpandedIndex: _subExpandedIndex,
-                onExpansionChanged: _onExpansionChanged,
-                onEditLabelName: _editLabelName,
-                onSetDefaultLabel: _setDefaultLabel,
-                onDeleteLabel: _deleteLabel,
+    return BaseScaffold(
+      widgetIndex: 2,
+        body: isLoading
+            ? Center(child: CircularProgressIndicator())
+            : SingleChildScrollView(
+                child: LabelList(
+                  labels: labels,
+                  expandedIndex: _expandedIndex,
+                  subExpandedIndex: _subExpandedIndex,
+                  onExpansionChanged: _onExpansionChanged,
+                  onEditLabelName: _editLabelName,
+                  onSetDefaultLabel: _setDefaultLabel,
+                  onDeleteLabel: _deleteLabel,
+                ),
               ),
-            ),
-      bottomNavigationBar: isAuthenticated
-          ? BottomNavBar(
-              selectedIndex: _selectedIndex,
-              onItemTapped: _onItemTapped,
-            )
-          : null,
-      floatingActionButton: FloatingActionButton(
-        onPressed: _addLabel,
-        backgroundColor: Colors.blue,
-        elevation: 2, // Increase elevation for a raised effect
-        tooltip: 'Add Label', // Optional tooltip
-        child: Icon(
-          Icons.add,
-          size: 24, // Adjust icon size as needed
-          color: Colors.white, // Icon color
-        ),
-      ),
-    );
+        floatingActionButton: FloatingActionButton(
+          onPressed: _addLabel,
+          backgroundColor: Colors.blue,
+          elevation: 2, // Increase elevation for a raised effect
+          tooltip: 'Add Label', // Optional tooltip
+          child: Icon(
+            Icons.add,
+            size: 24, // Adjust icon size as needed
+            color: Colors.white, // Icon color
+          ),
+        ));
   }
 }

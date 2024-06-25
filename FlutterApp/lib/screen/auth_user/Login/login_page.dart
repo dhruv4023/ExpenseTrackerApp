@@ -316,9 +316,10 @@ class _LoginPageState extends State<LoginPage> {
     } catch (e) {
       showToast('Submit Form Exception: $e');
     } finally {
-      setState(() {
-        _isLoading = false; // stop loading indicator
-      });
+      if (mounted)
+        setState(() {
+          _isLoading = false; // stop loading indicator
+        });
     }
   }
 

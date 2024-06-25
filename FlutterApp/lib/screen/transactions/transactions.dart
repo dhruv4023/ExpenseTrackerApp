@@ -4,10 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:expense_tracker/Models/Transactions.dart';
 import 'package:expense_tracker/Models/LabelMetaData.dart';
-import 'package:expense_tracker/config/ENV_VARS.dart'; // Import config.dart
-import 'package:expense_tracker/functions/switches.dart';
-import 'package:expense_tracker/widgets/bottom_nav_bar.dart'; // Import BottomNavBar
-import 'package:expense_tracker/widgets/custom_app_bar.dart';
+import 'package:expense_tracker/config/ENV_VARS.dart';
+import 'package:expense_tracker/widgets/base_scaffold.dart';
 import 'package:expense_tracker/functions/auth_shared_preference.dart';
 import 'package:expense_tracker/functions/drop_down_button.dart';
 import 'package:expense_tracker/screen/transactions/widgets/tnxs_widget.dart';
@@ -22,7 +20,6 @@ class TransactionsPage extends StatefulWidget {
 }
 
 class _TransactionsPageState extends State<TransactionsPage> {
-  int _selectedIndex = 2;
   List<Transaction> transactions = [];
   List<LabelMetaData> labelsMetadata = [];
   bool isLoading = false;
@@ -34,13 +31,6 @@ class _TransactionsPageState extends State<TransactionsPage> {
   void initState() {
     super.initState();
     fetchTransactions();
-  }
-
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-    switches(index, context);
   }
 
   void setPage(page) {
@@ -387,8 +377,8 @@ class _TransactionsPageState extends State<TransactionsPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: CustomAppBar(isAuthenticated: true),
+    return BaseScaffold(
+      widgetIndex: 1,
       body: Column(
         children: [
           if (metadata != null)
@@ -416,10 +406,6 @@ class _TransactionsPageState extends State<TransactionsPage> {
         onPressed: _addTransaction,
         backgroundColor: Colors.blue,
         child: Icon(Icons.add),
-      ),
-      bottomNavigationBar: BottomNavBar(
-        selectedIndex: _selectedIndex,
-        onItemTapped: _onItemTapped,
       ),
     );
   }

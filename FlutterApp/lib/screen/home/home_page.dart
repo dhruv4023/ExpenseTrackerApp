@@ -1,13 +1,8 @@
+import 'package:expense_tracker/widgets/base_scaffold.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:async';
-
-import 'package:expense_tracker/screen/auth_user/Login/login_page.dart';
-import 'package:expense_tracker/widgets/custom_app_bar.dart';
-import 'package:expense_tracker/widgets/bottom_nav_bar.dart';
-import 'package:expense_tracker/functions/switches.dart';
 import 'package:expense_tracker/config/ENV_VARS.dart';
 import 'package:expense_tracker/functions/show_toast.dart';
 import 'package:expense_tracker/functions/auth_shared_preference.dart';
@@ -21,9 +16,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  bool isAuthenticated = false;
   bool isLoading = false;
-  int _selectedIndex = 1;
   List<Wallet> wallets = [];
   bool walletForCurrentYearExists = false;
   String? selectedWalletId;
@@ -31,24 +24,7 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    _checkAuthentication();
-  }
-
-  Future<void> _checkAuthentication() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString('token');
-    if (token != null && token.isNotEmpty) {
-      setState(() {
-        isAuthenticated = true;
-      });
-      await fetchWallets();
-      selectedWalletId = await retriveWalletId();
-      // print(selectedWalletId);
-
-      setState(() {
-        selectedWalletId = selectedWalletId;
-      }); // Update state to reflect the retrieved wallet ID
-    }
+    fetchWallets();
   }
 
   Future<void> fetchWallets() async {
@@ -114,13 +90,6 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-    switches(index, context);
-  }
-
   void _onWalletTapped(String walletId) async {
     await saveWalletId(walletId);
     setState(() {
@@ -130,28 +99,17 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: isAuthenticated
-          ? CustomAppBar(isAuthenticated: isAuthenticated)
-          : null,
-      body: !isAuthenticated
-          ? LoginPage() // Redirect to authentication page if not authenticated
-          :isLoading
-          ? Center(child: CircularProgressIndicator())
-           :_homeContent(),
-      bottomNavigationBar: isAuthenticated
-          ? BottomNavBar(
-              selectedIndex: _selectedIndex,
-              onItemTapped: _onItemTapped,
-            )
-          : null,
-      floatingActionButton: isAuthenticated && !walletForCurrentYearExists
+    return BaseScaffold(
+      widgetIndex: 0,
+      body: _homeContent(),
+      floatingActionButton: !walletForCurrentYearExists
           ? FloatingActionButton(
               onPressed: createWallet,
               child: Icon(Icons.add),
               backgroundColor: Colors.blue,
             )
           : null,
+      showBottonNavBar: selectedWalletId != null,
     );
   }
 

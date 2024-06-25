@@ -1,9 +1,8 @@
 import 'dart:convert';
+import 'package:expense_tracker/functions/auth_shared_preference.dart';
+import 'package:expense_tracker/widgets/base_scaffold.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:expense_tracker/widgets/custom_app_bar.dart';
-import 'package:expense_tracker/functions/switches.dart';
-import 'package:expense_tracker/widgets/bottom_nav_bar.dart';
 import 'package:expense_tracker/screen/auth_user/Login/login_page.dart';
 import 'package:expense_tracker/config/ENV_VARS.dart'; // Import config.dart
 
@@ -15,31 +14,20 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  bool isAuthenticated = true; // Placeholder for authentication status
-  int _selectedIndex = 0;
   Map<String, dynamic>? user; // User object to store retrieved user data
 
   @override
   void initState() {
     super.initState();
-    _checkAuthentication();
+    getUserdata();
   }
 
-  Future<void> _checkAuthentication() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString('token');
-    if (token != null && token.isNotEmpty) {
-      String? userJson = prefs.getString('user');
+  void getUserdata() async {
+    String? userJson = await retriveUserData();
 
-      if (userJson != null) {
-        setState(() {
-          user = jsonDecode(userJson);
-          isAuthenticated = true;
-        });
-      }
-    } else {
+    if (userJson != null) {
       setState(() {
-        isAuthenticated = false;
+        user = jsonDecode(userJson);
       });
     }
   }
@@ -48,16 +36,8 @@ class _ProfilePageState extends State<ProfilePage> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.remove('token'); // Remove token from SharedPreferences
     await prefs.remove('user'); // Remove user data from SharedPreferences
-    setState(() {
-      isAuthenticated = false; // Update authentication status
-    });
-  }
 
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-    switches(index, context);
+    Navigator.of(context).pushReplacementNamed('/home');
   }
 
   void _navigateToEditProfile() {
@@ -75,17 +55,14 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: isAuthenticated
-          ? CustomAppBar(isAuthenticated: isAuthenticated)
-          : null,
-      body: isAuthenticated
-          ? _profileContent()
-          : LoginPage(), // Redirect to authentication page if not authenticated
-      bottomNavigationBar: isAuthenticated
-          ? BottomNavBar(
-              selectedIndex: _selectedIndex,
-              onItemTapped: _onItemTapped,
+    return BaseScaffold(
+      body: _profileContent(),
+      widgetIndex: 3,
+      showBottonNavBar: false,
+      floatingActionButton:user!=null ? FloatingActionButton(
+              onPressed: _navigateToEditProfile,
+              child: Icon(Icons.edit),
+              backgroundColor: Colors.blue,
             )
           : null,
     );
@@ -134,13 +111,6 @@ class _ProfilePageState extends State<ProfilePage> {
                   child: Text(
                     user!["email"],
                     style: TextStyle(fontSize: 16, color: Colors.grey),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Center(
-                  child: ElevatedButton(
-                    onPressed: _navigateToEditProfile,
-                    child: const Text('Edit Profile'),
                   ),
                 ),
                 const SizedBox(height: 16),

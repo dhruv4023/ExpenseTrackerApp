@@ -22,6 +22,7 @@ class MyApp extends StatelessWidget {
       ),
       initialRoute: '/home',
       debugShowCheckedModeBanner: false,
+
       routes: {
         '/home': (context) => const HomePage(),
         '/profile': (context) => const ProfilePage(),
