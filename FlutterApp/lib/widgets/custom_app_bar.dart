@@ -1,3 +1,4 @@
+import 'package:expense_tracker/constants/colors.dart';
 import 'package:flutter/material.dart';
 
 class MyAppBar extends StatefulWidget implements PreferredSizeWidget {
@@ -34,7 +35,7 @@ class _MyAppBarState extends State<MyAppBar> {
           );
         },
       ),
-      backgroundColor: Colors.grey,
+      backgroundColor: tdGrey,
       automaticallyImplyLeading: false,
       title:
           _isSearching ? buildSearchField() : const Text('Expense Tracker App'),

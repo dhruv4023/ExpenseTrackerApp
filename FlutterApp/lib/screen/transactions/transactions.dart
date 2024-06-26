@@ -11,6 +11,7 @@ import 'package:expense_tracker/functions/drop_down_button.dart';
 import 'package:expense_tracker/screen/transactions/widgets/tnxs_widget.dart';
 import 'package:expense_tracker/widgets/pagination.dart';
 import 'package:expense_tracker/services/transaction_service.dart'; // Import TransactionService
+import 'package:expense_tracker/constants/colors.dart';
 
 class TransactionsPage extends StatefulWidget {
   const TransactionsPage({Key? key}) : super(key: key);
@@ -404,8 +405,11 @@ class _TransactionsPageState extends State<TransactionsPage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _addTransaction,
-        backgroundColor: Colors.blue,
-        child: Icon(Icons.add),
+        backgroundColor: tdBlue,
+        child: Icon(
+          Icons.add,
+          color: Theme.of(context).iconTheme.color,
+        ),
       ),
     );
   }

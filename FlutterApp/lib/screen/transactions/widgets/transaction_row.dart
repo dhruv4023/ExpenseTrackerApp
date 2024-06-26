@@ -1,6 +1,7 @@
 import 'package:expense_tracker/functions/datetime.dart';
 import 'package:flutter/material.dart';
 import 'package:expense_tracker/Models/Transactions.dart';
+import 'package:expense_tracker/constants/colors.dart';
 
 class TransactionRow extends StatefulWidget {
   final String accountName;
@@ -67,7 +68,7 @@ class _TransactionRowState extends State<TransactionRow> {
                   children: [
                     IconButton(
                       icon: Icon(Icons.edit),
-                      color: Colors.blue,
+                      color: tdBlue,
                       onPressed: () {
                         widget.onEditTransactionComment(widget.transaction.id);
                       },
@@ -80,7 +81,7 @@ class _TransactionRowState extends State<TransactionRow> {
                       },
                     ),
                     IconButton(
-                      color: Colors.red,
+                      color: tdRed,
                       icon: Icon(Icons.delete),
                       onPressed: () {
                         widget.onDeleteTransaction(widget.transaction.id);

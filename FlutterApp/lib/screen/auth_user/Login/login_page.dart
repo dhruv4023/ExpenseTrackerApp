@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:expense_tracker/constants/colors.dart';
 import 'package:expense_tracker/functions/auth_shared_preference.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:flutter/material.dart';
@@ -327,7 +328,11 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: _authForm == UPDATE ? AppBar() : null,
-      body: Center(
+      body:_loginContent());
+  }
+ 
+  Widget _loginContent() { 
+    return  Center(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Form(
@@ -491,10 +496,10 @@ class _LoginPageState extends State<LoginPage> {
                           onPressed: _isLoading ? null : _pickImage,
                           style: ElevatedButton.styleFrom(
                             // Add style when button is disabled
-                            textStyle: const TextStyle(color: Colors.white),
+                            textStyle: const TextStyle(color: tdBGColor),
                             backgroundColor: _isLoading
-                                ? Colors.grey
-                                : Colors.blue, // Change color when disabled
+                                ? tdGrey
+                                : tdBlue, // Change color when disabled
                           ),
                           child: const Text('Pick an image'),
                         ),
@@ -505,10 +510,10 @@ class _LoginPageState extends State<LoginPage> {
                   ElevatedButton(
                     onPressed: _isLoading ? null : _submitForm,
                     style: ElevatedButton.styleFrom(
-                      textStyle: const TextStyle(color: Colors.white),
+                      textStyle: const TextStyle(color: tdBGColor),
                       backgroundColor: _isLoading
-                          ? Colors.grey
-                          : Colors.blue, // Change color when disabled
+                          ? tdGrey
+                          : tdBlue, // Change color when disabled
                     ),
                     child: Text(_authForm == LOGIN
                         ? 'Login'
@@ -522,10 +527,10 @@ class _LoginPageState extends State<LoginPage> {
                     ElevatedButton(
                       onPressed: _isLoading ? null : _tmp_login,
                       style: ElevatedButton.styleFrom(
-                        textStyle: const TextStyle(color: Colors.white),
+                        textStyle: const TextStyle(color: tdBGColor),
                         backgroundColor: _isLoading
-                            ? Colors.grey
-                            : Colors.blue, // Change color when disabled
+                            ? tdGrey
+                            : tdBlue, // Change color when disabled
                       ),
                       child: const Text('Tmp Login'),
                     ),
@@ -567,7 +572,7 @@ class _LoginPageState extends State<LoginPage> {
                   if (errorMessage.isNotEmpty)
                     Text(
                       errorMessage,
-                      style: const TextStyle(color: Colors.red),
+                      style: const TextStyle(color: tdRed),
                     ),
                   if (_isLoading) const CircularProgressIndicator(),
                 ],
@@ -575,7 +580,6 @@ class _LoginPageState extends State<LoginPage> {
             ),
           ),
         ),
-      ),
-    );
+      );
   }
 }

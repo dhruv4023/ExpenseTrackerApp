@@ -1,6 +1,7 @@
 // lib/screens/labels_page.dart
 
 import 'dart:convert';
+import 'package:expense_tracker/constants/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:expense_tracker/Models/Label.dart';
@@ -270,7 +271,7 @@ class _LabelsPageState extends State<LabelsPage> {
   @override
   Widget build(BuildContext context) {
     return BaseScaffold(
-      widgetIndex: 2,
+        widgetIndex: 2,
         body: isLoading
             ? Center(child: CircularProgressIndicator())
             : SingleChildScrollView(
@@ -286,13 +287,13 @@ class _LabelsPageState extends State<LabelsPage> {
               ),
         floatingActionButton: FloatingActionButton(
           onPressed: _addLabel,
-          backgroundColor: Colors.blue,
+          backgroundColor: tdBlue,
           elevation: 2, // Increase elevation for a raised effect
           tooltip: 'Add Label', // Optional tooltip
           child: Icon(
             Icons.add,
             size: 24, // Adjust icon size as needed
-            color: Colors.white, // Icon color
+            color: tdBGColor, // Icon color
           ),
         ));
   }

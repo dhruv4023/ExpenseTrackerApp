@@ -1,3 +1,4 @@
+import 'package:expense_tracker/constants/colors.dart';
 import 'package:flutter/material.dart';
 
 class Pagination extends StatefulWidget {
@@ -52,7 +53,7 @@ class _PaginationState extends State<Pagination> {
           onPressed:
               widget.page == 1 ? null : () => widget.setPage(widget.page - 1),
           icon: Icon(Icons.arrow_left),
-          disabledColor: Colors.grey,
+          disabledColor: tdGrey,
         ),
         Expanded(
           child: SingleChildScrollView(
@@ -67,7 +68,7 @@ class _PaginationState extends State<Pagination> {
                     onPressed: () => widget.setPage(index + 1),
                     style: ButtonStyle(
                       backgroundColor: MaterialStateProperty.all<Color>(
-                        widget.page == index + 1 ? Colors.blue : Colors.white,
+                        widget.page == index + 1 ? tdBlue : Colors.white,
                       ),
                     ),
                     child: Text((index + 1).toString()),
@@ -82,7 +83,7 @@ class _PaginationState extends State<Pagination> {
               ? null
               : () => widget.setPage(widget.page + 1),
           icon: Icon(Icons.arrow_right),
-          disabledColor: Colors.grey,
+          disabledColor: tdGrey,
         ),
       ],
     );

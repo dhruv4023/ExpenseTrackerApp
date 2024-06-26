@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:async';
-
-import 'package:expense_tracker/screen/auth_user/Login/login_page.dart';
 import 'package:expense_tracker/widgets/custom_app_bar.dart';
 import 'package:expense_tracker/widgets/bottom_nav_bar.dart';
 import 'package:expense_tracker/widgets/drawer.dart';
@@ -12,6 +10,7 @@ import 'package:expense_tracker/Models/Wallet.dart';
 class BaseScaffold extends StatefulWidget {
   final Widget body;
   final Widget? floatingActionButton;
+  final bool? showAppBar;
   final bool? showBottonNavBar;
   final int widgetIndex;
 
@@ -19,6 +18,7 @@ class BaseScaffold extends StatefulWidget {
     required this.body,
     required this.widgetIndex,
     this.floatingActionButton,
+    this.showAppBar,
     this.showBottonNavBar,
   });
 
@@ -39,12 +39,6 @@ class _BaseScaffoldState extends State<BaseScaffold> {
     _checkAuthentication();
   }
 
-  void updateAuthentication(bool value) {
-    setState(() {
-      isAuthenticated = value;
-    });
-  }
-
   Future<void> _checkAuthentication() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
@@ -52,35 +46,39 @@ class _BaseScaffoldState extends State<BaseScaffold> {
       setState(() {
         isAuthenticated = true;
       });
-
       setState(() {
         selectedWalletId = selectedWalletId;
       }); // Update state to reflect the retrieved wallet ID
+    } else {
+      Navigator.of(context).pushReplacementNamed('/login');
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar:
-          isAuthenticated ? MyAppBar(isAuthenticated: isAuthenticated) : null,
-      body: !isAuthenticated
-          ? LoginPage() // Redirect to authentication page if not authenticated
-          : isLoading
+      appBar: 
+      // isAuthenticated &&
+      widget.showAppBar == null || widget.showAppBar == true
+          ? MyAppBar(isAuthenticated: isAuthenticated)
+          : null,
+      body: 
+      !isAuthenticated    &&
+           isLoading
               ? Center(child: CircularProgressIndicator())
-              : widget.body,
+              : widget.body
+          ,// : LoginPage(),
       drawer: CustomDrawer(),
-      bottomNavigationBar:
-          (widget.showBottonNavBar == null || widget.showBottonNavBar == true)
-              && isAuthenticated
-                  ? BottomNavBar(
-                      selectedIndex: widget.widgetIndex,
-                      onItemTapped: (int index) {
-                        switches(index, context);
-                      },
-                    )
-                  : null
-              ,
+      bottomNavigationBar: (widget.showBottonNavBar == null ||
+                  widget.showBottonNavBar == true) 
+                  // &&              isAuthenticated
+          ? BottomNavBar(
+              selectedIndex: widget.widgetIndex,
+              onItemTapped: (int index) {
+                switches(index, context);
+              },
+            )
+          : null,
       floatingActionButton: widget.floatingActionButton,
     );
   }

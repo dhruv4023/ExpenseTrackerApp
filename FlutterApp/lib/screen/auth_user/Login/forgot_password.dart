@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:expense_tracker/config/ENV_VARS.dart'; // Import config.dart
+import 'package:expense_tracker/constants/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -183,10 +184,10 @@ class _ForgotPasswordState extends State<ForgotPassword> {
             ElevatedButton(
               onPressed: _loading || _disableEmailField ? null : _handleSendOTP,
               style: ElevatedButton.styleFrom(
-                textStyle: const TextStyle(color: Colors.white),
+                textStyle: const TextStyle(color: tdFGColor),
                 backgroundColor: _loading
-                    ? Colors.grey
-                    : Colors.blue, // Change color when disabled
+                    ? tdGrey
+                    : tdBlue, // Change color when disabled
               ),
               child: const Text('Send OTP'),
             ),
@@ -225,7 +226,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                 padding: EdgeInsets.symmetric(vertical: 16.0),
                 child: Text(
                   _errMsg!,
-                  style: TextStyle(color: Colors.red),
+                  style: TextStyle(color: tdRed),
                 ),
               ),
             if (_loading) CircularProgressIndicator(),

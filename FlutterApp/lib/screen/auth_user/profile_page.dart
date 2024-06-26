@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:expense_tracker/screen/auth_user/Login/login_page.dart';
 import 'package:expense_tracker/config/ENV_VARS.dart'; // Import config.dart
+import "package:expense_tracker/constants/colors.dart";
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({Key? key}) : super(key: key);
@@ -59,10 +60,14 @@ class _ProfilePageState extends State<ProfilePage> {
       body: _profileContent(),
       widgetIndex: 3,
       showBottonNavBar: false,
-      floatingActionButton:user!=null ? FloatingActionButton(
+      floatingActionButton: user != null
+          ? FloatingActionButton(
               onPressed: _navigateToEditProfile,
-              child: Icon(Icons.edit),
-              backgroundColor: Colors.blue,
+              child: Icon(
+                Icons.edit,
+                color: tdFGColor,
+              ),
+              backgroundColor: tdBlue,
             )
           : null,
     );
@@ -103,14 +108,14 @@ class _ProfilePageState extends State<ProfilePage> {
                 Center(
                   child: Text(
                     user!["about"],
-                    style: TextStyle(fontSize: 16, color: Colors.grey),
+                    style: TextStyle(fontSize: 16, color: tdGrey),
                   ),
                 ),
                 const SizedBox(height: 8),
                 Center(
                   child: Text(
                     user!["email"],
-                    style: TextStyle(fontSize: 16, color: Colors.grey),
+                    style: TextStyle(fontSize: 16, color: tdGrey),
                   ),
                 ),
                 const SizedBox(height: 16),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:expense_tracker/Models/Label.dart';
+import 'package:expense_tracker/constants/colors.dart';
 
 // ignore: must_be_immutable
 class LabelList extends StatelessWidget {
@@ -123,8 +124,8 @@ class LabelList extends StatelessWidget {
                         style: TextStyle(
                             fontWeight: FontWeight.bold,
                             color: totals["overall"]! < 0
-                                ? Colors.red
-                                : Colors.blue),
+                                ? tdRed
+                                : tdBlue),
                       ),
                     ),
                     IconButton(
@@ -135,7 +136,7 @@ class LabelList extends StatelessWidget {
                     ),
                     IconButton(
                       icon: const Icon(Icons.star),
-                      disabledColor: Colors.blue,
+                      disabledColor: tdBlue,
                       onPressed: label.isDefault
                           ? null
                           : () {
@@ -201,7 +202,7 @@ class LabelList extends StatelessWidget {
       height: 200.0,
       decoration: BoxDecoration(
         color: Colors.white,
-        border: Border.all(color: Colors.grey),
+        border: Border.all(color: tdGrey),
         borderRadius: BorderRadius.circular(8.0),
       ),
       margin: const EdgeInsets.all(4.0),
@@ -235,7 +236,7 @@ class LabelList extends StatelessWidget {
             'OVERALL: ${(totalCr - totalDr).toStringAsFixed(2)}',
             style: TextStyle(
                 fontSize: 12.0,
-                color: totalCr < totalDr ? Colors.red : Colors.green),
+                color: totalCr < totalDr ? tdRed : Colors.green),
           ),
           SizedBox(height: 8.0),
           if (totalDr != 0 || totalCr != 0)
@@ -245,7 +246,7 @@ class LabelList extends StatelessWidget {
                   sections: [
                     if (totalDr != 0)
                       PieChartSectionData(
-                        color: Colors.red,
+                        color: tdRed,
                         value: totalDr.toDouble(),
                         title: 'DR',
                         radius: 30,

@@ -1,3 +1,4 @@
+import 'package:expense_tracker/constants/colors.dart';
 import 'package:expense_tracker/widgets/base_scaffold.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -24,7 +25,12 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    fetchWallets();
+    _checkAuthentication();
+  }
+
+  Future<void> _checkAuthentication() async {
+    String token = await retriveToken();
+    if (token.length > 15) fetchWallets();
   }
 
   Future<void> fetchWallets() async {
@@ -102,7 +108,7 @@ class _HomePageState extends State<HomePage> {
     return BaseScaffold(
       widgetIndex: 0,
       body: _homeContent(),
-      floatingActionButton: !walletForCurrentYearExists
+      floatingActionButton: !walletForCurrentYearExists && !isLoading
           ? FloatingActionButton(
               onPressed: createWallet,
               child: Icon(Icons.add),
@@ -134,7 +140,7 @@ class _HomePageState extends State<HomePage> {
                     return ListTile(
                       title: Text(wallet.title),
                       subtitle: Text(wallet.year),
-                      tileColor: isSelected ? Colors.blue[100] : null,
+                      tileColor: isSelected ? tdBlue : null,
                       onTap: () => _onWalletTapped(wallet.id),
                     );
                   },

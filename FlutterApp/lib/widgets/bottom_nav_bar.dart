@@ -1,3 +1,4 @@
+import 'package:expense_tracker/constants/colors.dart';
 import 'package:flutter/material.dart';
 
 class BottomNavBar extends StatelessWidget {
@@ -19,7 +20,7 @@ class BottomNavBar extends StatelessWidget {
       // backgroundColor: Colors
       //     .amberAccent, // Set background color for the whole BottomNavigationBar
       selectedItemColor: Colors.redAccent, // Color for selected item
-      unselectedItemColor: Colors.black, // Color for unselected items
+      unselectedItemColor: tdFGColor, // Color for unselected items
 
       items: const <BottomNavigationBarItem>[
         BottomNavigationBarItem(
