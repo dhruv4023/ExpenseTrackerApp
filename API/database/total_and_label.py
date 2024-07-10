@@ -7,7 +7,7 @@ MONTHS = [
     "feb",
     "mar",
     "apr",
-    "may",  
+    "may",
     "jun",
     "jul",
     "aug",
@@ -182,14 +182,24 @@ def incrementInTotalCollection(walletId: str, transactionData: dict, session):
 def decrementInTotalCollection(walletId: str, transactionData: dict, session):
     try:
         amt = transactionData["amt"]
+        accountId = transactionData["account_id"]
         labelId = transactionData["label_id"]
         mm = int(transactionData["dateTime"][4:6])
         label = "dr" if amt < 0 else "cr"
 
-        query = {"_id": walletId, "labels._id": labelId}
-        dec_field = {"labels.$." + MONTHS[mm - 1] + "." + label: -(abs(amt))}
+        query = {"_id": walletId, "labels._id": {"$in": [labelId, accountId]}}
 
-        x = totalAndLabel.update_one(query, {"$inc": dec_field}, session=session)
+        update = {
+            "$inc": {
+                f"labels.$[label]." + MONTHS[mm - 1] + "." + label: -(abs(amt)),
+            }
+        }
+        array_filters = [{"label._id": {"$in": [labelId, accountId]}}]
+
+        x = totalAndLabel.update_one(
+            query, update, array_filters=array_filters, session=session
+        )
+
         if x.modified_count != 0:
             return True
         else:

@@ -11,35 +11,28 @@ from database.total_and_label import (
 
 
 def addNewTransaction(
-    userId: str,
-    comment: str,
-    amt: float,
-    accountId: str,
-    labelId: str,
-    dateTime: str = getDateTimeUniqueNumber(),
+    userId: str, comment: str, amt: float, accountId: str, labelId: str, dateTime: str
 ):
-    # Generate transaction ID and method ID
-    transactionId = getUniqueId()
-    walletId = userId + "_" + dateTime[:4]
-
-    # defaltAccId, defaultLabelId = None, None
-    # if accountId is None or labelId is None:
-    #     defaltAccId, defaultLabelId = getDefaultLabelAndAccountId(walletId)
-    # Create transaction document
-    doc = {
-        "_id": str(transactionId),
-        "dateTime": dateTime,
-        "comment": comment,
-        "account_id": accountId,  # if accountId else defaltAccId,
-        "label_id": labelId,  # if labelId else defaultLabelId,
-        "amt": amt,
-    }
-
-    validate_document(document=doc, schema=transaction_schema)
-
     with db_client.start_session() as session:
         with session.start_transaction():
             try:
+                # Generate transaction ID and method ID
+                transactionId = getUniqueId()
+                dateTime = dateTime or getDateTimeUniqueNumber()
+                walletId = userId + "_" + dateTime[:4]
+
+                # Create transaction document
+                doc = {
+                    "_id": str(transactionId),
+                    "dateTime": dateTime,
+                    "comment": comment,
+                    "account_id": accountId,  # if accountId else defaltAccId,
+                    "label_id": labelId,  # if labelId else defaultLabelId,
+                    "amt": amt,
+                }
+
+                validate_document(document=doc, schema=transaction_schema)
+
                 query = {"_id": walletId}
                 update = {"$push": {"transactions": {"$each": [doc], "$position": 0}}}
                 result = updateOne(query, update, session=session)
@@ -50,65 +43,68 @@ def addNewTransaction(
                 if result == 0:
                     raise Exception("Failed to update transactions list")
 
-                return True
             except Exception as e:
                 session.abort_transaction()
-                LOG.debug(f"Error adding new transaction: {e}")
-                return False
+                raise Exception(f"Error adding new transaction: {e}")
 
 
 # to delete a transaction from transactions array
 def deleteTransaction(walletId: str, transactionId: str):
-    try:
-        query = {"_id": walletId}
-        transactionData = getTransactionById(walletId, transactionId)
-        update = {"$pull": {"transactions": {"_id": transactionData["_id"]}}}
-        with db_client.start_session() as session:
-            return decrementInTotalCollection(
-                walletId, transactionData, session=session
-            ) and updateOne(query, update, session=session)
-    except Exception as e:
-        LOG.debug(f"Error deleting transaction: {e}")
-        raise Exception(f"Error deleting transaction: {e}")
+    with db_client.start_session() as session:
+        with session.start_transaction():
+            try:
+                query = {"_id": walletId}
+                transactionData = getTransactionById(walletId, transactionId)
+                update = {"$pull": {"transactions": {"_id": transactionData["_id"]}}}
+                decrementInTotalCollection(walletId, transactionData, session=session)
+                updateOne(query, update, session=session)
+            except Exception as e:
+                session.abort_transaction()
+                LOG.debug(f"Error deleting transaction: {e}")
+                raise Exception(f"Error deleting transaction: {e}")
 
 
 # to edit comment in a transaction
 def editTransactionsComment(walletId: str, transactionId: str, comment: str):
-    try:
-        query = {"_id": walletId, "transactions._id": transactionId}
-        update = {"$set": {"transactions.$.comment": comment}}
-        with db_client.start_session() as session:
-            return updateOne(query, update, session=session)
-    except Exception as e:
-        LOG.debug(f"Error editing comment in transaction: {e}")
-        raise Exception(f"Error editing comment in transaction: {e}")
+    with db_client.start_session() as session:
+        with session.start_transaction():
+            try:
+                query = {"_id": walletId, "transactions._id": transactionId}
+                update = {"$set": {"transactions.$.comment": comment}}
+                return updateOne(query, update, session=session)
+            except Exception as e:
+                session.abort_transaction()
+                LOG.debug(f"Error editing comment in transaction: {e}")
+                raise Exception(f"Error editing comment in transaction: {e}")
 
 
 # to edit label in a transaction
 def changelableTransactions(walletId: str, newLabelId: str, transactionId: str):
-    try:
-        transactionData = getTransactionById(walletId, transactionId)
-        if transactionData["label_id"] == newLabelId:
-            return True
-        query = {
-            "_id": walletId,
-            "transactions._id": transactionId,
-        }
-        update = {"$set": {"transactions.$.label_id": newLabelId}}
-        with db_client.start_session() as session:
-            decreamentAndIncrement(
-                walletId,
-                newLabelId,
-                transactionData,
-                session,
-            )
+    with db_client.start_session() as session:
+        with session.start_transaction() as session:
+            try:
+                transactionData = getTransactionById(walletId, transactionId)
+                if transactionData["label_id"] == newLabelId:
+                    raise Exception(f"new label and old label are same")
 
-            if updateOne(query, update, session=session) == 0:
-                raise Exception(f"Error changing label in transaction")
-            return True
-    except Exception as e:
-        LOG.debug(f"Error changing label in transaction: {e}")
-        raise Exception(f"Error changing label in transaction: {e}")
+                query = {
+                    "_id": walletId,
+                    "transactions._id": transactionId,
+                }
+                update = {"$set": {"transactions.$.label_id": newLabelId}}
+                decreamentAndIncrement(
+                    walletId,
+                    newLabelId,
+                    transactionData,
+                    session,
+                )
+
+                if updateOne(query, update, session=session) == 0:
+                    raise Exception(f"Error changing label in transaction")
+                return "label updated successfully"
+            except Exception as e:
+                LOG.debug(f"Error changing label in transaction: {e}")
+                raise Exception(f"Error changing label in transaction: {e}")
 
 
 # to retrive transactions
