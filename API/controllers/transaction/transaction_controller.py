@@ -12,8 +12,10 @@ from database.transaction import (
 router = APIRouter()
 
 
-@router.post("/add")
-async def add_transaction(req: Request, token: str = Depends(verify_token)):
+@router.post("/add/wallet/{walletId}")
+async def add_transaction(
+    req: Request, walletId: str, token: str = Depends(verify_token)
+):
     try:
         body = await req.json()
         comment = body.get("comment")
@@ -26,11 +28,15 @@ async def add_transaction(req: Request, token: str = Depends(verify_token)):
         if None in (comment, amt, accountId, labelId):
             raise ValueError("Missing required fields")
 
-        addNewTransaction(
-            token["username"], comment, float(amt), accountId, labelId, dateTime
+        tnxId = addNewTransaction(
+            walletId=walletId,
+            comment=comment,
+            amt=float(amt),
+            accountId=accountId,
+            labelId=labelId,
         )
 
-        return ResponseHandler.success(2001)
+        return ResponseHandler.success(2001, {"transactionId": tnxId})
     except Exception as e:
         return ResponseHandler.error(9999, e)
 

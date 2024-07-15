@@ -1,25 +1,27 @@
 from fastapi import APIRouter, Depends, Request
 from helpers.response import ResponseHandler
 from middleware.verifyToken import verify_token
-from database.total_and_label import (
+from database.accounts_and_labels import getSumOfAccountLabel 
+from database.labels import (
     addLabel,
     editLabelName,
     deleteLabel,
     setDefaultLabel,
-    getLabels,
 )
+
 
 router = APIRouter()
 
 
-@router.post("/add")
-async def add_label(req: Request, token: str = Depends(verify_token)):
+@router.post("/add/wallet/{walletId}")
+async def add_label(req: Request, walletId: str, token: str = Depends(verify_token)):
     try:
+        if walletId[:-5] != token["username"]:
+            return ResponseHandler.error(5001, None, 403)
         body = await req.json()
         labelName = body.get("labelName")
-        isAccount = body.get("isAccount")
         labelId = addLabel(
-            UID=token["username"], labelName=labelName, isAccount=isAccount
+            walletId=walletId, labelName=labelName
         )
         return ResponseHandler.success(3001, {"labelId": labelId})
     except Exception as e:
@@ -42,32 +44,42 @@ async def edit_labelName(
 
 
 @router.put(
-    "/set/default/{labelId}/wallet/{walletId}/oldDefaultLabel/{oldDefaultLabelId}"
+    "/set/default/{labelId}/wallet/{walletId}"
 )
 async def set_default_label(
     walletId: str,
     labelId: str,
-    oldDefaultLabelId: str,
     token: str = Depends(verify_token),
 ):
     try:
         if walletId[:-5] != token["username"]:
             return ResponseHandler.error(5001, None, 403)
-        setDefaultLabel(walletId, labelId, oldDefaultLabelId)
+        setDefaultLabel(walletId, labelId)
         return ResponseHandler.success(3002)
     except Exception as e:
         return ResponseHandler.error(9999, e)
 
 
-@router.get("/get/wallet/{walletId}")
-async def get_labels(walletId: str, token: str = Depends(verify_token)):
-    try:
-        if walletId[:-5] != token["username"]:
-            return ResponseHandler.error(5001, None, 403)
-        labels = getLabels(walletId)
-        return ResponseHandler.success(3004, {"labels": labels})
-    except Exception as e:
-        return ResponseHandler.error(9999, e)
+# @router.get("/get/wallet/{walletId}")
+# async def get_labels(walletId: str, token: str = Depends(verify_token)):
+#     try:
+#         if walletId[:-5] != token["username"]:
+#             return ResponseHandler.error(5001, None, 403)
+#         labels = getLabels(walletId)
+#         return ResponseHandler.success(3004, {"labels": labels})
+#     except Exception as e:
+        # return ResponseHandler.error(9999, e)
+
+
+# @router.get("/get/balance/wallet/{walletId}")
+# async def get_sum_of_account_label(walletId: str, token: str = Depends(verify_token)):
+#     try:
+#         if walletId[:-5] != token["username"]:
+#             return ResponseHandler.error(5001, None, 403)
+#         balance = getSumOfAccountLabel(walletId)
+#         return ResponseHandler.success(3006, {"balance": balance})
+#     except Exception as e:
+#         return ResponseHandler.error(9999, e)
 
 
 @router.delete("/delete/wallet/{walletId}/label/{labelId}")

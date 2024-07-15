@@ -10,8 +10,5 @@ LOG.debug("Connected successfully")
 db = db_client["ExpenseTrackerDb"]
 
 # All collections
-users = db[CONST_VAR.COLLECTIONS["USERS"]]
-wallets = db[CONST_VAR.COLLECTIONS["WALLETS"]]
-totalAndLabel = db[CONST_VAR.COLLECTIONS["TOTAL_AND_LABEL"]]
-archivedTransactions = db[CONST_VAR.COLLECTIONS["ARCHIVED_TRANSACTIONS"]]
-archivedTotalAndLabel = db[CONST_VAR.COLLECTIONS["ARCHIVED_TOTAL_AND_LABEL"]]
+WALLETS = db[CONST_VAR.COLLECTIONS["WALLETS"]]
+ACCOUNTS_AND_LABELS = db[CONST_VAR.COLLECTIONS["ACCOUNTS_AND_LABELS"]]

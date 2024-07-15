@@ -15,11 +15,8 @@ class ENV_VAR:
 
 class CONST_VAR:
     COLLECTIONS = {
-        "USERS": "users",
-        "WALLETS": "wallets",
-        "TOTAL_AND_LABEL": "totalAndLabel",
-        "ARCHIVED_TRANSACTIONS": "archivedTransactions",
-        "ARCHIVED_TOTAL_AND_LABEL": "archivedTotalAndLabel",
+        "WALLETS": "WALLETS",
+        "ACCOUNTS_AND_LABELS": "ACCOUNTS_AND_LABELS",
     }
 
 

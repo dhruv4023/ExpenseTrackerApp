@@ -3,8 +3,7 @@ from starlette.middleware.cors import CORSMiddleware
 from fastapi import FastAPI
 from routes.main import main_router
 from appConfig import ENV_VAR
-import database.main
-
+from database.main import *
 # import os
 origins = ["*"]
 
@@ -28,6 +27,7 @@ from helpers.response import ResponseHandler
 @app.get("/")
 async def home():
     return ResponseHandler.success(message_code=9000)
+
 
 import uvicorn
 

@@ -18,6 +18,14 @@ MESSAGES = {
     3003: "Label name updated successfully",
     3004: "Labels retrieved successfully",
     3005: "Label deleted successfully",
+    3006: "Balance Data retrieved successfully",
+    # Account
+    4001: "Account added successfully",
+    4002: "Default Account updated successfully",
+    4003: "Account name updated successfully",
+    4004: "Accounts retrieved successfully",
+    4005: "Account deleted successfully",
+    4006: "Balance Data retrieved successfully",
     # Authorization messages
     5001: "Unauthorized - Admin access required",
     5002: "Access denied - Unauthorized",
