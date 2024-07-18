@@ -22,7 +22,7 @@ async def add_transaction(
         amt = body.get("amt")
         accountId = body.get("accountId")
         labelId = body.get("labelId")
-        dateTime = body.get("dateTime", None)
+        # dateTime = body.get("dateTime", None)
 
         # Ensure all necessary fields are present
         if None in (comment, amt, accountId, labelId):

@@ -1,13 +1,13 @@
 // lib/screen/transactions/widgets/tnx_widget.dart
 
-import 'package:expense_tracker/Models/LabelMetaData.dart';
+import 'package:expense_tracker/Models/LabelAccountMetadata.dart';
 import 'package:flutter/material.dart';
 import 'package:expense_tracker/Models/Transactions.dart';
 import 'package:expense_tracker/screen/transactions/widgets/transaction_row.dart';
 
 class TnxWidget extends StatelessWidget {
   final List<Transaction> transactions;
-  final List<LabelMetaData> labelsMetadata;
+  final List<LabelAccount> accountsMetadata, labelsMetadata;
   final Function(String) onEditTransactionComment;
   final Function(String) onEditTransactionLabel;
   final Function(String) onDeleteTransaction;
@@ -15,6 +15,7 @@ class TnxWidget extends StatelessWidget {
   TnxWidget({
     required this.transactions,
     required this.labelsMetadata,
+    required this.accountsMetadata,
     required this.onEditTransactionComment,
     required this.onEditTransactionLabel,
     required this.onDeleteTransaction,
@@ -91,16 +92,15 @@ class TnxWidget extends StatelessWidget {
                     children: [
                       const Divider(),
                       TransactionRow(
-                        accountName: //"no account",
-                            labelsMetadata
-                                .firstWhere((e) =>
-                                    e.id == transactions[index].accountId)
-                                .labelName,
-                        labelName: //"no label",
-                            labelsMetadata
-                                .firstWhere(
-                                    (e) => e.id == transactions[index].labelId)
-                                .labelName,
+                        accountName: accountsMetadata
+                            .firstWhere(
+                                (x) => x.id == transactions[index].accountId)
+                            .labelORAccountName,
+                        //  "no account",
+                        labelName: labelsMetadata
+                            .firstWhere(
+                                (x) => x.id == transactions[index].labelId)
+                            .labelORAccountName, // "no label",
                         transaction: transactions[index],
                         isLargeScreen: isLargeScreen,
                         onEditTransactionComment: onEditTransactionComment,

@@ -15,9 +15,10 @@ class DropController extends ChangeNotifier {
     notifyListeners();
   }
 }
+
 Widget dropDownMenu(DropController dropController, Map<String, String> keyValues) {
-  return ChangeNotifierProvider<DropController>(
-    create: (_) => dropController,
+  return ChangeNotifierProvider<DropController>.value(
+    value: dropController,
     child: Consumer<DropController>(
       builder: (context, dropController, child) {
         return DropdownButton<String>(

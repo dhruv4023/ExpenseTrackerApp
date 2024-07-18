@@ -2,7 +2,7 @@ from database.unique_id import *
 from database.main import *
 from helpers.pagination import get_paginated_response
 from database.accounts_and_labels import (
-    getLabelsAccounts,
+    getLabelsAccountsNameOnly,
 )
 
 
@@ -108,9 +108,9 @@ def getTransactions(walletId: str, page: int = 1, limit: int = 10):
             },
         },
     )
-    labels = None
+    labelsAccounts = None
     if page == 1:
-        labelsAccounts = getLabelsAccounts(walletId)
+        labelsAccounts = getLabelsAccountsNameOnly(walletId)
     return get_paginated_response(
         list(tnxs["transactions"]),
         page,

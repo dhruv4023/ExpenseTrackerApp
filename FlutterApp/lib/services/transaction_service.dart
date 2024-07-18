@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'package:expense_tracker/functions/datetime.dart';
 import 'package:http/http.dart' as http;
 import 'package:expense_tracker/config/ENV_VARS.dart'; // Import config.dart
 import 'package:expense_tracker/functions/auth_shared_preference.dart';
@@ -9,13 +8,15 @@ class TransactionService {
 
   static Future<void> addTransaction(
       String comment, double amount, String accountId, String labelId) async {
-    final url = Uri.parse('$baseUrl/add');
+    String? walletId = await retriveWalletId();
+
+    final url = Uri.parse('$baseUrl/add/wallet/$walletId');
+
     final payload = jsonEncode({
       "comment": comment,
       "amt": amount,
       "accountId": accountId,
       "labelId": labelId,
-      "dateTime": getCurrentDateTimeFormatted()
     });
     final headers = {
       'Authorization': await retriveToken(),

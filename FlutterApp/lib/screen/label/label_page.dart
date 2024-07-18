@@ -11,6 +11,8 @@ import 'package:expense_tracker/functions/auth_shared_preference.dart';
 import 'package:expense_tracker/screen/label/widgets/label_list.dart';
 import 'package:expense_tracker/services/label_service.dart';
 import 'package:expense_tracker/functions/show_toast.dart';
+import 'package:expense_tracker/Models/Account.dart';
+import 'package:expense_tracker/services/account_service.dart';
 
 class LabelsPage extends StatefulWidget {
   const LabelsPage({Key? key}) : super(key: key);
@@ -22,15 +24,15 @@ class LabelsPage extends StatefulWidget {
 class _LabelsPageState extends State<LabelsPage> {
   List<Label> labels = [];
   bool isLoading = true;
-  int? _expandedIndex;
-  int? _subExpandedIndex;
+  List<Account> accounts = [];
+
   @override
   void initState() {
     super.initState();
-    fetchLabels();
+    fetchLabelsAccountsAndBalance();
   }
 
-  Future<void> fetchLabels() async {
+  Future<void> fetchLabelsAccountsAndBalance() async {
     try {
       String? walletId = await retriveWalletId();
       if (walletId == null) Navigator.of(context).pushReplacementNamed('/home');
@@ -38,7 +40,7 @@ class _LabelsPageState extends State<LabelsPage> {
       setState(() {
         isLoading = true; // Start loading indicator
       });
-      final url = '$API_URL/label/get/wallet/${walletId}';
+      final url = '$API_URL/label_account/get/wallet/${walletId}';
 
       final response = await http.get(
         Uri.parse(url),
@@ -50,9 +52,13 @@ class _LabelsPageState extends State<LabelsPage> {
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
+        // print(data);
         setState(() {
-          labels = (data['data']['labels'] as List)
-              .map((item) => Label.fromMap(item))
+          labels = (data['data']["labelsAccounts"]['labels'] as List)
+              .map((item) => Label.fromJson(item))
+              .toList();
+          accounts = (data['data']["labelsAccounts"]['accounts'] as List)
+              .map((item) => Account.fromJson(item))
               .toList();
           isLoading = false; // Stop loading indicator
         });
@@ -68,30 +74,15 @@ class _LabelsPageState extends State<LabelsPage> {
     }
   }
 
-  void _onExpansionChanged(int index, {bool subExpansion = false}) {
-    if (subExpansion) {
-      setState(() {
-        _subExpandedIndex = index == _subExpandedIndex ? null : index;
-      });
-    } else {
-      setState(() {
-        _expandedIndex = index == _expandedIndex ? null : index;
-      });
-    }
-  }
-
-  Future<void> _setDefaultLabel(String labelId, bool isAccount) async {
+  Future<void> _setDefaultLabel(String id, bool isAccount) async {
     try {
-      String oldDefaultLabel = labels
-          .firstWhere(
-              (element) => element.isDefault && element.isAccount == isAccount)
-          .id;
-
       setState(() {
         isLoading = true; // Start loading indicator
       });
-      await LabelService.setDefaultLabel(labelId, oldDefaultLabel);
-      await fetchLabels();
+      isAccount
+          ? await AccountService.setDefaultAccount(id)
+          : await LabelService.setDefaultLabel(id);
+      await fetchLabelsAccountsAndBalance();
     } catch (e) {
       showToast(e.toString());
     } finally {
@@ -102,8 +93,9 @@ class _LabelsPageState extends State<LabelsPage> {
   }
 
   Future<void> _addLabel() async {
-    final labelNameController = TextEditingController();
+    final nameController = TextEditingController();
     bool isAccount = false;
+    final openingBalanceController = TextEditingController();
 
     await showDialog(
       context: context,
@@ -118,7 +110,7 @@ class _LabelsPageState extends State<LabelsPage> {
               });
 
               try {
-                final labelName = labelNameController.text.trim();
+                final labelName = nameController.text.trim();
                 if (labelName.isEmpty) {
                   showToast("Label name cannot be empty");
                   setState(() {
@@ -126,8 +118,14 @@ class _LabelsPageState extends State<LabelsPage> {
                   });
                   return;
                 }
-                await LabelService.addLabel(labelName, isAccount);
-                await fetchLabels();
+                if (isAccount) {
+                  double? openingBalance =
+                      double.tryParse(openingBalanceController.text) ?? 0.0;
+                  await AccountService.addAccount(labelName, openingBalance);
+                } else
+                  await LabelService.addLabel(labelName);
+
+                await fetchLabelsAccountsAndBalance();
                 Navigator.of(context).pop();
               } catch (e) {
                 showToast(e.toString());
@@ -146,7 +144,7 @@ class _LabelsPageState extends State<LabelsPage> {
                   if (_isLoading) CircularProgressIndicator(),
                   if (!_isLoading) ...[
                     TextField(
-                      controller: labelNameController,
+                      controller: nameController,
                       decoration: const InputDecoration(
                         hintText: "Enter label/account name",
                       ),
@@ -165,6 +163,15 @@ class _LabelsPageState extends State<LabelsPage> {
                         const Text('Is Account'),
                       ],
                     ),
+                    if (isAccount)
+                      TextField(
+                        controller: openingBalanceController,
+                        keyboardType:
+                            TextInputType.numberWithOptions(decimal: true),
+                        decoration: const InputDecoration(
+                          hintText: "Enter opening balance",
+                        ),
+                      ),
                   ],
                 ],
               ),
@@ -181,9 +188,8 @@ class _LabelsPageState extends State<LabelsPage> {
     );
   }
 
-  Future<void> _editLabelName(String labelId) async {
-    final newLabelNameController = TextEditingController();
-
+  Future<void> _editLabelName(String id, bool isAccount) async {
+    final newLabelOrAccountNameController = TextEditingController();
     await showDialog(
       context: context,
       builder: (context) {
@@ -197,9 +203,13 @@ class _LabelsPageState extends State<LabelsPage> {
               });
 
               try {
-                await LabelService.editLabelName(
-                    labelId, newLabelNameController.text);
-                await fetchLabels();
+                isAccount
+                    ? await AccountService.editAccountName(
+                        id, newLabelOrAccountNameController.text)
+                    : await LabelService.editLabelName(
+                        id, newLabelOrAccountNameController.text);
+
+                await fetchLabelsAccountsAndBalance();
                 Navigator.of(context).pop();
               } catch (e) {
                 showToast("error: " + e.toString());
@@ -211,16 +221,19 @@ class _LabelsPageState extends State<LabelsPage> {
             }
 
             return AlertDialog(
-              title: const Text('Edit Label Name'),
+              title:
+                  Text('Edit ' + (isAccount ? 'Account' : 'Label') + ' Name'),
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   if (_isLoading) CircularProgressIndicator(),
                   if (!_isLoading)
                     TextField(
-                      controller: newLabelNameController,
-                      decoration: const InputDecoration(
-                          hintText: "Enter new label name"),
+                      controller: newLabelOrAccountNameController,
+                      decoration: InputDecoration(
+                          hintText: 'Enter new ' +
+                              (isAccount ? 'Account' : 'Label') +
+                              ' Name'),
                     ),
                 ],
               ),
@@ -237,28 +250,29 @@ class _LabelsPageState extends State<LabelsPage> {
     );
   }
 
-  Future<void> _deleteLabel(String labelId) async {
+  Future<void> _deleteLabel(String Id, bool isAccount) async {
     try {
       setState(() {
         isLoading = true; // Start loading indicator
       });
+      // final headers = {
+      //   'Authorization': await retriveToken(),
+      //   'Content-Type': 'application/json; charset=UTF-8',
+      // };
 
-      final url =
-          '$API_URL/label/delete/wallet/${await retriveWalletId()}/label/$labelId';
-      final headers = {
-        'Authorization': await retriveToken(),
-        'Content-Type': 'application/json; charset=UTF-8',
-      };
+      // final url =
+      //     '$API_URL/label/delete/wallet/${await retriveWalletId()}/label/$Id';
 
-      final response = await http.delete(Uri.parse(url), headers: headers);
+      // final response = await http.delete(Uri.parse(url), headers: headers);
 
-      if (response.statusCode == 200) {
-        await fetchLabels();
-        showToast('Label deleted successfully');
-      } else {
-        Map<String, dynamic> responseData = jsonDecode(response.body);
-        throw Exception('${responseData["error"]}');
-      }
+      // if (response.statusCode == 200) {
+      //   await fetchLabelsAccountsAndBalance();
+      //   showToast('Label deleted successfully');
+      // } else {
+      //   Map<String, dynamic> responseData = jsonDecode(response.body);
+      //   throw Exception('${responseData["error"]}');
+      // }
+      showToast('NOT IMPLEMENTED');
     } catch (e) {
       showToast('Error deleting label: $e');
     } finally {
@@ -277,9 +291,7 @@ class _LabelsPageState extends State<LabelsPage> {
             : SingleChildScrollView(
                 child: LabelList(
                   labels: labels,
-                  expandedIndex: _expandedIndex,
-                  subExpandedIndex: _subExpandedIndex,
-                  onExpansionChanged: _onExpansionChanged,
+                  accounts: accounts,
                   onEditLabelName: _editLabelName,
                   onSetDefaultLabel: _setDefaultLabel,
                   onDeleteLabel: _deleteLabel,

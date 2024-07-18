@@ -1,4 +1,3 @@
-import 'package:expense_tracker/functions/datetime.dart';
 import 'package:flutter/material.dart';
 import 'package:expense_tracker/Models/Transactions.dart';
 import 'package:expense_tracker/constants/colors.dart';
@@ -59,7 +58,7 @@ class _TransactionRowState extends State<TransactionRow> {
                       ? "No label"
                       : widget.labelName!)),
             if (widget.isLargeScreen)
-              Expanded(child: Text(formatDate(widget.transaction.dateTime))),
+              Expanded(child: Text((widget.transaction.addedOn).toIso8601String())),
             if (widget.isLargeScreen)
               Expanded(child: Text(widget.transaction.comment)),
             if (widget.isLargeScreen)
@@ -101,7 +100,7 @@ class _TransactionRowState extends State<TransactionRow> {
                   title: Text('Label: ${widget.labelName}'),
                 ),
                 ListTile(
-                  title: Text('DateTime: ${formatDate(widget.transaction.dateTime)}'),
+                  title: Text('DateTime: ${(widget.transaction.addedOn).toIso8601String()}'),
                 ),
                 ListTile(
                   title: Text('Comment: ${widget.transaction.comment}'),

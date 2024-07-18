@@ -96,7 +96,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Future<void> _tmp_login() async {
-    print(API_URL);
+    // print(API_URL);
     if (API_URL.contains("localhost")) {
       setState(() {
         _isLoading = true; // Start loading indicator
@@ -109,8 +109,8 @@ class _LoginPageState extends State<LoginPage> {
             'Content-Type': 'application/json',
           },
           body: jsonEncode({
-            'uid': "dhruv40123",
-            'password': "123Tes",
+            'uid': "tst",
+            'password': "test123",
             "unlimitedTokenTime": true
           }),
         );

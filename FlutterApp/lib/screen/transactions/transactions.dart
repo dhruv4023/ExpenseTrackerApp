@@ -3,7 +3,7 @@ import 'package:expense_tracker/functions/show_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:expense_tracker/Models/Transactions.dart';
-import 'package:expense_tracker/Models/LabelMetaData.dart';
+import 'package:expense_tracker/Models/LabelAccountMetadata.dart';
 import 'package:expense_tracker/config/ENV_VARS.dart';
 import 'package:expense_tracker/widgets/base_scaffold.dart';
 import 'package:expense_tracker/functions/auth_shared_preference.dart';
@@ -22,7 +22,8 @@ class TransactionsPage extends StatefulWidget {
 
 class _TransactionsPageState extends State<TransactionsPage> {
   List<Transaction> transactions = [];
-  List<LabelMetaData> labelsMetadata = [];
+  List<LabelAccount> labelsMetadata = [];
+  List<LabelAccount> accountsMetadata = [];
   bool isLoading = false;
   int currentPage = 1;
   int totalPages = 1;
@@ -62,12 +63,18 @@ class _TransactionsPageState extends State<TransactionsPage> {
             data["data"]['transactions']["page_data"];
 
         final List<dynamic>? labelsJson =
-            data["data"]["transactions"]['labels'];
+            data["data"]['transactions']['labelsAccounts']["labels"];
+        final List<dynamic> accountsJson =
+            data["data"]['transactions']['labelsAccounts']["accounts"];
 
         setState(() {
           if (labelsJson != null) {
             labelsMetadata =
-                labelsJson.map((json) => LabelMetaData.fromJson(json)).toList();
+                labelsJson.map((json) => LabelAccount.fromJson(json)).toList();
+
+            accountsMetadata = accountsJson
+                .map((json) => LabelAccount.fromJson(json))
+                .toList();
           }
           transactions = transactionsJson
               .map((json) => Transaction.fromJson(json))
@@ -95,9 +102,9 @@ class _TransactionsPageState extends State<TransactionsPage> {
     final commentController = TextEditingController();
     final amountController = TextEditingController();
     final DropController dropLabelContr = DropController(
-        labelsMetadata.firstWhere((e) => e.isDefault && !e.isAccount).id);
+        labelsMetadata.firstWhere((element) => element.isDefault).id);
     final DropController dropAccountContr = DropController(
-        labelsMetadata.firstWhere((e) => e.isDefault && e.isAccount).id);
+        accountsMetadata.firstWhere((element) => element.isDefault).id);
     final DropController dropDrCrContr = DropController("-");
 
     await showDialog(
@@ -146,6 +153,7 @@ class _TransactionsPageState extends State<TransactionsPage> {
                 Navigator.of(context).pop();
               } catch (e) {
                 showToast(e.toString());
+              } finally {
                 setState(() {
                   isLoadingInsideDialog = false;
                 });
@@ -181,8 +189,8 @@ class _TransactionsPageState extends State<TransactionsPage> {
                       children: [
                         Text("Select Account :"),
                         dropDownMenu(dropAccountContr, {
-                          for (var label in labelsMetadata)
-                            if (label.isAccount) label.id: label.labelName
+                          for (var label in accountsMetadata)
+                            label.id: label.labelORAccountName
                         }),
                       ],
                     ),
@@ -191,7 +199,7 @@ class _TransactionsPageState extends State<TransactionsPage> {
                         Text("Select Label :"),
                         dropDownMenu(dropLabelContr, {
                           for (var label in labelsMetadata)
-                            if (!label.isAccount) label.id: label.labelName
+                            label.id: label.labelORAccountName
                         }),
                       ],
                     ),
@@ -212,8 +220,8 @@ class _TransactionsPageState extends State<TransactionsPage> {
   }
 
   Future<void> _editTransactionLabel(String transactionId) async {
-    final DropController dropContr = DropController(
-        labelsMetadata.firstWhere((e) => e.isDefault && !e.isAccount).id);
+    final DropController dropLabelContr = DropController(
+        labelsMetadata.firstWhere((element) => element.isDefault).id);
 
     bool isLoadingInsideDialog = false;
     await showDialog(
@@ -228,7 +236,7 @@ class _TransactionsPageState extends State<TransactionsPage> {
 
               try {
                 await TransactionService.editTransactionLabel(
-                    transactionId, dropContr.selectedValue ?? '');
+                    transactionId, dropLabelContr.selectedValue ?? '');
                 await fetchTransactions();
                 Navigator.of(context).pop();
               } catch (e) {
@@ -241,7 +249,7 @@ class _TransactionsPageState extends State<TransactionsPage> {
             }
 
             return AlertDialog(
-              title: const Text('Edit Transaction Label'),
+              title: const Text('Change Transaction Label'),
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -250,9 +258,9 @@ class _TransactionsPageState extends State<TransactionsPage> {
                     Row(
                       children: [
                         Text("Select Label :"),
-                        dropDownMenu(dropContr, {
+                        dropDownMenu(dropLabelContr, {
                           for (var label in labelsMetadata)
-                            if (!label.isAccount) label.id: label.labelName
+                            label.id: label.labelORAccountName
                         }),
                       ],
                     ),
@@ -396,6 +404,7 @@ class _TransactionsPageState extends State<TransactionsPage> {
                       child: TnxWidget(
                         transactions: transactions,
                         labelsMetadata: labelsMetadata,
+                        accountsMetadata: accountsMetadata,
                         onEditTransactionComment: _editTransactionComment,
                         onEditTransactionLabel: _editTransactionLabel,
                         onDeleteTransaction: _deleteTransaction,

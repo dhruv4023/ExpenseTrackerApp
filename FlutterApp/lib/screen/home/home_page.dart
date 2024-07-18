@@ -19,7 +19,6 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   bool isLoading = false;
   List<Wallet> wallets = [];
-  bool walletForCurrentYearExists = false;
   String? selectedWalletId;
 
   @override
@@ -51,10 +50,9 @@ class _HomePageState extends State<HomePage> {
         final List<dynamic> walletsData = data['data']["wallets"];
         setState(() {
           wallets = walletsData.map((json) => Wallet.fromJson(json)).toList();
-          walletForCurrentYearExists = wallets
-              .any((wallet) => wallet.year == DateTime.now().year.toString());
           isLoading = false;
-          if (walletForCurrentYearExists) {
+          if (wallets
+              .any((wallet) => wallet.year == DateTime.now().year.toString())) {
             _onWalletTapped(wallets
                 .firstWhere(
                     (element) => element.year == DateTime.now().year.toString())
@@ -108,13 +106,6 @@ class _HomePageState extends State<HomePage> {
     return BaseScaffold(
       widgetIndex: 0,
       body: _homeContent(),
-      floatingActionButton: !walletForCurrentYearExists && !isLoading
-          ? FloatingActionButton(
-              onPressed: createWallet,
-              child: Icon(Icons.add),
-              backgroundColor: Colors.blue,
-            )
-          : null,
       showBottonNavBar: selectedWalletId != null,
     );
   }
@@ -138,8 +129,8 @@ class _HomePageState extends State<HomePage> {
                     final wallet = wallets[index];
                     final bool isSelected = wallet.id == selectedWalletId;
                     return ListTile(
-                      title: Text(wallet.title),
-                      subtitle: Text(wallet.year),
+                      title: Text(wallet.year),
+                      // subtitle: Text(wallet.year),
                       tileColor: isSelected ? tdBlue : null,
                       onTap: () => _onWalletTapped(wallet.id),
                     );

@@ -1,25 +1,28 @@
-class Label {
-  final String id;
-  final String labelName;
-  final bool isDefault;
-  final DateTime addedOn;
-  final DateTime updatedOn;
-  final double balance;
+class Account {
+  String id;
+  String accountName;
+  bool isDefault;
+  double openingBalance;
+  DateTime addedOn;
+  DateTime updatedOn;
+  double balance;
 
-  Label({
+  Account({
     required this.id,
-    required this.labelName,
+    required this.accountName,
     required this.isDefault,
+    required this.openingBalance,
     required this.addedOn,
     required this.updatedOn,
     required this.balance,
   });
 
-  factory Label.fromJson(Map<String, dynamic> json) {
-    return Label(
+  factory Account.fromJson(Map<String, dynamic> json) {
+    return Account(
       id: json['_id'] as String,
-      labelName: json['label_name'] as String,
+      accountName: json['account_name'] as String,
       isDefault: json['default'] as bool,
+      openingBalance: json['opening_balance'] as double,
       balance: json['balance'] as double,
       addedOn: DateTime.parse(json['added_on'] as String),
       updatedOn: DateTime.parse(json['updated_on'] as String),
@@ -29,9 +32,10 @@ class Label {
   Map<String, dynamic> toJson() {
     return {
       '_id': id,
-      'label_name': labelName,
+      'account_name': accountName,
       'default': isDefault,
-      'balance': balance,
+      'balance':balance,
+      'opening_balance': openingBalance,
       'added_on': addedOn.toIso8601String(),
       'updated_on': updatedOn.toIso8601String(),
     };
