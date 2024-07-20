@@ -119,7 +119,7 @@ def getTransactions(walletId: str, page: int = 1, limit: int = 10):
             ]
         )
     )[0]
-    print(tnxs["transactions"])
+    # print(tnxs["transactions"])
     labelsAccounts = None
     if page == 1:
         labelsAccounts = getLabelsAccountsNameOnly(walletId)
