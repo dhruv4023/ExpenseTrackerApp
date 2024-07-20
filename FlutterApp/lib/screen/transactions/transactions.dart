@@ -63,12 +63,12 @@ class _TransactionsPageState extends State<TransactionsPage> {
             data["data"]['transactions']["page_data"];
 
         final List<dynamic>? labelsJson =
-            data["data"]['transactions']['labelsAccounts']["labels"];
-        final List<dynamic> accountsJson =
-            data["data"]['transactions']['labelsAccounts']["accounts"];
+            data["data"]?['transactions']?['labelsAccounts']?["labels"];
+        final List<dynamic>? accountsJson =
+            data["data"]?['transactions']?['labelsAccounts']?["accounts"];
 
         setState(() {
-          if (labelsJson != null) {
+          if (labelsJson != null && accountsJson != null) {
             labelsMetadata =
                 labelsJson.map((json) => LabelAccount.fromJson(json)).toList();
 

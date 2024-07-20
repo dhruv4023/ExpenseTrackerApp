@@ -77,7 +77,9 @@ def getLabelsAccountsNameOnly(walletId: str, session=None):
 
 def getLabelsAccounts(walletId: str, session=None):
     try:
-        return ACCOUNTS_AND_LABELS.find_one({"_id": walletId}, session=session)
+        return ACCOUNTS_AND_LABELS.find_one(
+            {"_id": walletId}, {"opening_balance": 0}, session=session
+        )
     except Exception as e:
         raise Exception("Failed to retrieve accounts and labels: " + str(e))
 

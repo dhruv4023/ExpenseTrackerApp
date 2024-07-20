@@ -29,7 +29,9 @@ def addNewTransaction(
                 validate_document(document=doc, schema=transaction_schema)
 
                 query = {"_id": walletId}
-                update = {"$push": {"transactions": {"$each": [doc], "$position": 0}}}
+                update = {
+                    "$push": {"transactions": doc}
+                }  # {"$each": [doc], "$position": 0}}}
                 result = updateOne(query, update, session=session)
 
                 if result == 0:
@@ -98,21 +100,31 @@ def changelableTransactions(walletId: str, newLabelId: str, transactionId: str):
 
 # to retrive transactions
 def getTransactions(walletId: str, page: int = 1, limit: int = 10):
-    query = {"_id": walletId}
-    tnxs = WALLETS.find_one(
-        query,
-        {
-            "transactions": {"$slice": [(page - 1) * limit, limit]},
-            "transactionCount": {
-                "$size": "$transactions",
-            },
-        },
-    )
+    tnxs = list(
+        WALLETS.aggregate(
+            [
+                {"$match": {"_id": walletId}},
+                {
+                    "$project": {
+                        "transactions": {
+                            "$slice": [
+                                {"$reverseArray": "$transactions"},
+                                (page - 1) * limit,
+                                limit,
+                            ]
+                        },
+                        "transactionCount": {"$size": "$transactions"},
+                    }
+                },
+            ]
+        )
+    )[0]
+    print(tnxs["transactions"])
     labelsAccounts = None
     if page == 1:
         labelsAccounts = getLabelsAccountsNameOnly(walletId)
     return get_paginated_response(
-        list(tnxs["transactions"]),
+        tnxs["transactions"],
         page,
         limit,
         tnxs["transactionCount"],

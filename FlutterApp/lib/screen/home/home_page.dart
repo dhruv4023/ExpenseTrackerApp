@@ -128,12 +128,15 @@ class _HomePageState extends State<HomePage> {
                   itemBuilder: (context, index) {
                     final wallet = wallets[index];
                     final bool isSelected = wallet.id == selectedWalletId;
-                    return ListTile(
-                      title: Text(wallet.year),
-                      // subtitle: Text(wallet.year),
-                      tileColor: isSelected ? tdBlue : null,
-                      onTap: () => _onWalletTapped(wallet.id),
-                    );
+                    return Column(children: [
+                      Divider(),
+                      ListTile(
+                        title: Text(wallet.year),
+                        // subtitle: Text(wallet.year),
+                        tileColor: isSelected ? tdBlue : null,
+                        onTap: () => _onWalletTapped(wallet.id),
+                      ),
+                    ]);
                   },
                 ),
               ),
