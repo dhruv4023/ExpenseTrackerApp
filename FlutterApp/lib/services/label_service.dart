@@ -9,8 +9,7 @@ class LabelService {
   static String baseUrl = "$API_URL/label";
 
   static Future<void> addLabel(String labelName) async {
-    String? walletId = await retriveWalletId();
-    final url = Uri.parse('$baseUrl/add/wallet/$walletId');
+    final url = Uri.parse('$baseUrl/add');
     final payload = jsonEncode({
       "labelName": labelName,
     });
@@ -29,7 +28,7 @@ class LabelService {
 
   static Future<void> editLabelName(String labelId, String newLabelName) async {
     final url = Uri.parse(
-        '$baseUrl/edit/name/wallet/${await retriveWalletId()}/label/$labelId');
+        '$baseUrl/edit/name/label/$labelId');
     final payload = jsonEncode({"newLabelName": newLabelName});
     final headers = {
       'Authorization': await retriveToken(),
@@ -44,8 +43,7 @@ class LabelService {
   }
 
   static Future<void> setDefaultLabel(String labelId) async {
-    String? walletId = await retriveWalletId();
-    final url = Uri.parse('$baseUrl/set/default/$labelId/wallet/$walletId');
+    final url = Uri.parse('$baseUrl/set/default/$labelId');
     final headers = {
       'Authorization': await retriveToken(),
       'Content-Type': 'application/json; charset=UTF-8',

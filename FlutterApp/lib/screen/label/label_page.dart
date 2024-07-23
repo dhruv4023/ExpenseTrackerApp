@@ -95,7 +95,6 @@ class _LabelsPageState extends State<LabelsPage> {
   Future<void> _addLabel() async {
     final nameController = TextEditingController();
     bool isAccount = false;
-    final openingBalanceController = TextEditingController();
 
     await showDialog(
       context: context,
@@ -119,9 +118,7 @@ class _LabelsPageState extends State<LabelsPage> {
                   return;
                 }
                 if (isAccount) {
-                  double? openingBalance =
-                      double.tryParse(openingBalanceController.text) ?? 0.0;
-                  await AccountService.addAccount(labelName, openingBalance);
+                  await AccountService.addAccount(labelName);
                 } else
                   await LabelService.addLabel(labelName);
 
@@ -163,15 +160,6 @@ class _LabelsPageState extends State<LabelsPage> {
                         const Text('Is Account'),
                       ],
                     ),
-                    if (isAccount)
-                      TextField(
-                        controller: openingBalanceController,
-                        keyboardType:
-                            TextInputType.numberWithOptions(decimal: true),
-                        decoration: const InputDecoration(
-                          hintText: "Enter opening balance",
-                        ),
-                      ),
                   ],
                 ],
               ),

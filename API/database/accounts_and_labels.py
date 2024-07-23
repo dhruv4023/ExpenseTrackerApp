@@ -6,30 +6,36 @@ from database.labels import addLabel
 
 
 # to add new Document in TotalAndLabel
-def addNewAccountLabelDoc(walletId: str, session):
+def addNewAccountLabelDoc(userName: str, session):
     try:
-        doc = {"_id": walletId, "labels": []}
+        doc = {
+            "_id": userName,
+            "labels": [],
+            "added_on": str(datetime.now()),
+            "updated_on": str(datetime.now()),
+        }
         ACCOUNTS_AND_LABELS.insert_one(doc, session=session)
         addAccount(
-            walletId,
+            userName,
             accountName="Pocket",
-            openingBalance=0.0,
             accountId="0",
             default=True,
             session=session,
         )
         addLabel(
-            walletId, labelName="Other", labelId="1", default=True, session=session
+            userName, labelName="Other", labelId="1", default=True, session=session
         )
     except Exception as e:
         raise Exception("Failed to add new total and label document: " + str(e))
 
 
 def getSumOfAccountLabel(walletId: str):
-    return list(
+    openingBalances = WALLETS.find_one(walletId, {"opening_balances": 1})
+    balance = list(
         WALLETS.aggregate(
             [
                 {"$match": {"_id": walletId}},
+                {"$project": {"transactions": 1}},
                 {"$unwind": "$transactions"},
                 {
                     "$facet": {
@@ -57,11 +63,30 @@ def getSumOfAccountLabel(walletId: str):
         )
     )
 
+    def add_opening_balances(wallet, balance):
+        opening_balances_map = {
+            ob["_id"]: ob["balance"] for ob in wallet["opening_balances"]
+        }
 
-def getLabelsAccountsNameOnly(walletId: str, session=None):
+        for entry in balance:
+            for account in entry["sumByAccountId"]:
+                if account["_id"] in opening_balances_map:
+                    account["totalAmt"] += opening_balances_map[account["_id"]]
+                    account["totalAmt"] = round(account["totalAmt"], 2)
+
+            for label in entry["sumByLabelId"]:
+                if label["_id"] in opening_balances_map:
+                    label["totalAmt"] += opening_balances_map[label["_id"]]
+                    label["totalAmt"] = round(label["totalAmt"], 2)
+
+    add_opening_balances(openingBalances, balance)
+    return balance
+
+
+def getLabelsAccountsNameOnly(userName: str, session=None):
     try:
         return ACCOUNTS_AND_LABELS.find_one(
-            {"_id": walletId},
+            {"_id": userName},
             {
                 "labels._id": 1,
                 "labels.label_name": 1,
@@ -75,18 +100,18 @@ def getLabelsAccountsNameOnly(walletId: str, session=None):
         raise Exception("Failed to retrieve accounts and labels: " + str(e))
 
 
-def getLabelsAccounts(walletId: str, session=None):
+def getLabelsAccounts(userName: str, session=None):
     try:
         return ACCOUNTS_AND_LABELS.find_one(
-            {"_id": walletId}, {"opening_balance": 0}, session=session
+            {"_id": userName}, {"opening_balance": 0}, session=session
         )
     except Exception as e:
         raise Exception("Failed to retrieve accounts and labels: " + str(e))
 
 
-def getLabelsAccountsWithBalance(walletId: str):
+def getLabelsAccountsWithBalance(userName: str, walletId: str):
     try:
-        labelsAccounts = getLabelsAccounts(walletId)
+        labelsAccounts = getLabelsAccounts(userName)
         balance = getSumOfAccountLabel(walletId)
 
         sumByAccountId = {
@@ -106,4 +131,5 @@ def getLabelsAccountsWithBalance(walletId: str):
         return labelsAccounts
 
     except Exception as e:
+        print(str(e))
         raise Exception(str(e))

@@ -5,9 +5,11 @@ wallet_schema = {
     "year": str,
     "username": str,
     "transactions": list,
+    "opening_balances": list,
     "started_on": str,
     "updated_on": str,
 }
+opening_balance_obj_schema = {"_id": str, "balance": float}
 
 transaction_schema = {
     "_id": str,
@@ -31,7 +33,6 @@ account_schema = {
     "_id": str,
     "account_name": str,
     "default": bool,
-    "opening_balance": float,
     "added_on": datetime,
     "updated_on": datetime,
 }

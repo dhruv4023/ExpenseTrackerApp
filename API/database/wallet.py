@@ -3,7 +3,7 @@ from database.accounts_and_labels import addNewAccountLabelDoc
 
 
 # Function to create a new wallet document
-def createWallet(userName: str, yyyy: str):
+def createWallet(userName: str, yyyy: str, opening_balances: list = []):
     # Generate a unique ID for the wallet
     walletId = userName + "_" + yyyy
 
@@ -13,6 +13,7 @@ def createWallet(userName: str, yyyy: str):
         "year": yyyy,
         "username": userName,
         "transactions": [],
+        "opening_balances": opening_balances,
         "started_on": str(datetime.now()),
         "updated_on": str(datetime.now()),
     }
@@ -27,9 +28,9 @@ def createWallet(userName: str, yyyy: str):
             try:
                 # Insert the wallet document into the database
                 WALLETS.insert_one(wallet_doc, session=session)
-            
+
                 # Add new total and label document
-                addNewAccountLabelDoc(walletId, session=session)
+                addNewAccountLabelDoc(userName, session=session)
 
                 # Commit the transaction
                 session.commit_transaction()

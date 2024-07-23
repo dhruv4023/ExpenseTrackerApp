@@ -99,7 +99,7 @@ def changelableTransactions(walletId: str, newLabelId: str, transactionId: str):
 
 
 # to retrive transactions
-def getTransactions(walletId: str, page: int = 1, limit: int = 10):
+def getTransactions(useraName: str, walletId: str, page: int = 1, limit: int = 10):
     tnxs = list(
         WALLETS.aggregate(
             [
@@ -119,10 +119,10 @@ def getTransactions(walletId: str, page: int = 1, limit: int = 10):
             ]
         )
     )[0]
-    # print(tnxs["transactions"])
+
     labelsAccounts = None
     if page == 1:
-        labelsAccounts = getLabelsAccountsNameOnly(walletId)
+        labelsAccounts = getLabelsAccountsNameOnly(userName=useraName)
     return get_paginated_response(
         tnxs["transactions"],
         page,

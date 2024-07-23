@@ -96,7 +96,7 @@ async def get_transactions(
     try:
         if walletId[:-5] != token["username"]:
             return ResponseHandler.error(5001, None, 403)
-        transactions = getTransactions(walletId, page, limit)
+        transactions = getTransactions(token["username"], walletId, page, limit)
         return ResponseHandler.success(2009, {"transactions": (transactions)})
     except Exception as e:
         return ResponseHandler.error(500, str(e))

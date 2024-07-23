@@ -4,9 +4,8 @@ from database.unique_id import getUniqueId
 
 # to add new Label object in TotalAndLabel Document
 def addAccount(
-    walletId: str,
+    userName: str,
     accountName: str,
-    openingBalance: float,
     default=False,
     accountId=str(getUniqueId()),
     session=None,
@@ -16,13 +15,12 @@ def addAccount(
             "_id": accountId,
             "account_name": accountName,
             "default": default,
-            "opening_balance": openingBalance or 0.0,
             "added_on": datetime.now(),
             "updated_on": datetime.now(),
         }
         validate_document(doc, schema=account_schema)
         res = ACCOUNTS_AND_LABELS.update_one(
-            {"_id": walletId}, {"$push": {"accounts": doc}}, session=session
+            {"_id": userName}, {"$push": {"accounts": doc}}, session=session
         ).modified_count
         if res == 0:
             raise Exception("Failed to add account")
@@ -32,13 +30,13 @@ def addAccount(
 
 
 # to remove Account object from TotalAndAccount Document
-def deleteAccount(walletId: str, accountId: str, session=None):
+def deleteAccount(userName: str, accountId: str, session=None):
     try:
         if accountId == "0":
             raise Exception("You can't delete the default account")
 
         x = ACCOUNTS_AND_LABELS.update_one(
-            {"_id": walletId},
+            {"_id": userName},
             {"$pull": {"accounts": {"_id": accountId}}},
             session=session,
         )
@@ -50,9 +48,9 @@ def deleteAccount(walletId: str, accountId: str, session=None):
 
 
 # to set Account object as default in TotalAndAccount Document
-def setDefaultAccount(walletId: str, accountId: str, session=None):
+def setDefaultAccount(userName: str, accountId: str, session=None):
     try:
-        accounts = ACCOUNTS_AND_LABELS.find_one({"_id": walletId}, {"accounts": 1})[
+        accounts = ACCOUNTS_AND_LABELS.find_one({"_id": userName}, {"accounts": 1})[
             "accounts"
         ]
         if len([i for i in accounts if i["_id"] == accountId]) == 0:
@@ -62,7 +60,7 @@ def setDefaultAccount(walletId: str, accountId: str, session=None):
         if oldDefaultAccountId == accountId:
             return
         query = {
-            "_id": walletId,
+            "_id": userName,
             "accounts._id": {"$in": [accountId, oldDefaultAccountId]},
         }
         update = {
@@ -86,9 +84,9 @@ def setDefaultAccount(walletId: str, accountId: str, session=None):
 
 
 # to edit Account name in object of account in TotalAndAccount Document
-def editAccountName(walletId: str, accountId: str, newAccountName: str, session=None):
+def editAccountName(userName: str, accountId: str, newAccountName: str, session=None):
     try:
-        query = {"_id": walletId, "accounts._id": accountId}
+        query = {"_id": userName, "accounts._id": accountId}
         update = {"$set": {"accounts.$.account_name": newAccountName}}
         x = ACCOUNTS_AND_LABELS.update_one(query, update, session=session)
         if x.modified_count == 0:
